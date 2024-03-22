@@ -1,0 +1,103 @@
+import { Button, Form, Input, Modal, Select, message } from "antd";
+import { useEffect } from "react";
+
+interface HandleFormProps {
+  openHandleForm: boolean;
+  setOpenHandleForm: (visible: boolean) => void;
+  guildTechCore: any;
+}
+
+const HandleForm = ({ openHandleForm, setOpenHandleForm, guildTechCore }: HandleFormProps) => {
+  const [form] = Form.useForm();
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const onFinish = async (values: any) => {
+    console.log("Received values of form: ", values);
+    const data = {
+      name: values.guildName,
+      slotPrice: values.slotPrice,
+      rewardShareForMembers: Number(values.rewardShareForMembers),
+      guildOwnerShare: Number(values.guildOwnerShare),
+      txGuildOwnerShare: 0.9,
+    }
+    const res = await guildTechCore.createGuild(
+      data.name,
+      data.slotPrice,
+      data.rewardShareForMembers,
+      data.guildOwnerShare,
+      data.txGuildOwnerShare,
+      {}
+    );
+    messageApi.success("Create guild success");
+  };
+
+  return (
+    <Form form={form} onFinish={onFinish}>
+      {contextHolder}
+      <Modal
+        open={openHandleForm}
+        onCancel={() => {
+          form.resetFields();
+          setOpenHandleForm(false);
+        }}
+        title={"Add New Guild"}
+        onOk={() => form.submit()}
+      >
+        <Form.Item
+          label="Guild Name"
+          name="guildName"
+          rules={[{ required: true, message: "Please input Guild Name!" }]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          label="Slot Price"
+          name="slotPrice"
+          rules={[
+            { required: true, message: "Please input Slot Price!" },
+            {
+              pattern: /[+-]?([0-9]*[.])?[0-9]+/,
+              message: "Please input valid number!",
+            }
+          ]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          label="Reward Share For Members"
+          name="rewardShareForMembers"
+          rules={[
+            {
+              required: true,
+              message: "Please input Reward Share For Members!",
+            },
+            {
+              pattern: /[+-]?([0-9]*[.])?[0-9]+/,
+              message: "Please input valid number!",
+            }
+          ]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          label="Guild Owner Share"
+          name="guildOwnerShare"
+          rules={[
+            {
+              required: true,
+              message: "Please input!",
+            },
+            {
+              pattern: /[+-]?([0-9]*[.])?[0-9]+/,
+              message: "Please input valid number!",
+            }
+          ]}
+        >
+          <Input />
+        </Form.Item>
+      </Modal>
+    </Form>
+  );
+};
+
+export default HandleForm;
