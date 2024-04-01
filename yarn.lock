@@ -311,10 +311,10 @@
   resolved "https://registry.yarnpkg.com/@humanwhocodes/object-schema/-/object-schema-2.0.2.tgz#d9fae00a2d5cb40f92cfe64b47ad749fbc38f917"
   integrity sha512-6EwiSjwWYP7pTckG6I5eyFANjPhmPjUX9JRLUSfNPC7FX7zK9gyZAfUEaECL6ALTpGX5AjnBq3C9XmVWPitNpw==
 
-"@mirailabs-co/shards-tech@1.0.1":
-  version "1.0.1"
-  resolved "https://npm.pkg.github.com/download/@mirailabs-co/shards-tech/1.0.1/5be42bf9de60eda369adcc160ff3a2b5c07b661a#5be42bf9de60eda369adcc160ff3a2b5c07b661a"
-  integrity sha512-Zy6aYbDamI744AXzmyI/CCL4RlpnCwtFsydtjFffumxzRDZD/nOlHXGSMzxaWOKrlEM4XM5M0aR5rH6uYkSNXQ==
+"@mirailabs-co/shards-tech@^1.0.25":
+  version "1.0.25"
+  resolved "http://localhost:4873/@mirailabs-co/shards-tech/-/shards-tech-1.0.25.tgz#242e5d0cddba537f3828cff6f6bfc4ad72bed6b8"
+  integrity sha512-1SiSZVxzyy02WAnZ1O8GNbgiTHDAzVpE8Qh5xz6eIDlcs24R/1Ma48+Z/S8Tb4X4GEioFKvQv1UU0XOiPYUl5A==
   dependencies:
     eventemitter3 "^5.0.1"
     jwt-decode "^3.1.2"
