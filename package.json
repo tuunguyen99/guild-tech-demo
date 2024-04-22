@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 8080",
+    "dev": "next dev -p 8081",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -15,7 +15,7 @@
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@faker-js/faker": "^8.3.1",
-    "@mirailabs-co/shards-tech": "1.1.1",
+    "@mirailabs-co/shards-tech": "1.1.6",
     "antd": "^5.11.5",
     "axios": "^1.6.8",
     "moment": "^2.30.1",

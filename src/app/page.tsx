@@ -146,8 +146,8 @@ export default function Home() {
     const response = await shardsTechCore.sellFraction(guildAddress, amount);
   };
 
-  const changeOwner = async (guildAddress: string, newOwner: string) => {
-    const response = await shardsTechCore.changeOwnerGuild(guildAddress, newOwner);
+  const changeOwner = async (newOwner: string) => {
+    const response = await shardsTechCore.changeGuildOwner( shardsTechCore.userGuild.address, newOwner, shardsTechCore.userInfo.userId);
   }
 
   const usersColumns = [
@@ -160,6 +160,11 @@ export default function Home() {
       title: "UserId",
       dataIndex: "userId",
       key: "userId",
+    },
+    {
+      title: "Shards Tech Id",
+      dataIndex: "_id",
+      key: "_id",
     },
   ];
 
@@ -275,10 +280,11 @@ export default function Home() {
               <Input
                 onChange={(e) => setNewOwner(e.target.value)}
                 value={newOwner}
+                // newOwner is Shards Tech Id of member who will be new owner
               />
               <Button
                 type="primary"
-                onClick={() => changeOwner(shardsTechCore.userGuild.address, newOwner)}
+                onClick={() => changeOwner(newOwner)}
               >
                 Change Owner
               </Button>
