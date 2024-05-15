@@ -41,6 +41,7 @@ export default function Home() {
   const initShardsTechCore = async () => {
     const shardsTech = await ShardsTechCore.init({
       clientId: "7421609e-545a-4256-99da-12f3308713b0",
+      // env: "production",
     });
     setShardsTechCore(shardsTech);
   };
@@ -99,7 +100,8 @@ export default function Home() {
     const response = await shardsTechCore.buySlot(
       buySlotPrice.guild.address,
       buySlotPrice.seller,
-      buySlotPrice.price
+      buySlotPrice.price,
+      buySlotPrice.guild.chain
     );
     await shardsTechCore.getGuildOfUser();
     setOpenBuySlotPrice(false);
@@ -138,12 +140,12 @@ export default function Home() {
     setMySellSlot(mySellSlot);
   };
 
-  const buyFraction = async (guildAddress: string, amount: number) => {
-    const response = await shardsTechCore.buyFraction(guildAddress, amount);
+  const buyFraction = async (guildAddress: string, amount: number, chain?: string) => {
+    const response = await shardsTechCore.buyFraction(guildAddress, amount, chain);
   };
 
-  const sellFraction = async (guildAddress: string, amount: number) => {
-    const response = await shardsTechCore.sellFraction(guildAddress, amount);
+  const sellFraction = async (guildAddress: string, amount: number, chain?: string) => {
+    const response = await shardsTechCore.sellFraction(guildAddress, amount, chain);
   };
 
   const changeOwner = async (newOwner: string) => {
@@ -200,10 +202,10 @@ export default function Home() {
             <Button onClick={() => getSlotPrice(guild._id)}>
               Get Slot Price
             </Button>
-            <Button onClick={() => buyFraction(guild.address, 1)}>
+            <Button onClick={() => buyFraction(guild.address, 1, guild.chain)}>
               Buy Fraction
             </Button>
-            <Button onClick={() => sellFraction(guild.address, 1)}>
+            <Button onClick={() => sellFraction(guild.address, 1, guild.chain)}>
               Sell Fraction
             </Button>
           </Space>
