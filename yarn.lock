@@ -3278,6 +3278,11 @@ uri-js@^4.2.2:
   dependencies:
     punycode "^2.1.0"
 
+use-session-storage-state@^18.2.0:
+  version "18.2.0"
+  resolved "https://registry.npmjs.org/use-session-storage-state/-/use-session-storage-state-18.2.0.tgz#532a8ab6eeb8a57f15f1131cd56397bb33af38b4"
+  integrity sha512-FO+L8B73DA78SxbeWo80Q/Dt+EtK/BgkONwFK3pmbntMolNh9Mij43qBxKFWfVWl7OOpeYm/M984var2utSEJQ==
+
 usehooks-ts@^2.9.1:
   version "2.12.1"
   resolved "https://registry.yarnpkg.com/usehooks-ts/-/usehooks-ts-2.12.1.tgz#7ede7a33e4e22067bec616e8983933445d182b6b"

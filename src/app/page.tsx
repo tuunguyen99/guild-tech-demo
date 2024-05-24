@@ -14,9 +14,18 @@ import {
 import { useEffect, useState } from "react";
 import HandleForm from "./shards-tech/_Form";
 import ShardsTabChat from "./shards-tech/_TabChat";
+import axios from "axios";
+import useSessionStorageState from 'use-session-storage-state';
 
 export default function Home() {
-  const accessToken = process.env.NEXT_PUBLIC_GUILD_TECH_ACCESS_TOKEN;
+  const [accessToken, setAccessToken] = useSessionStorageState<any>(
+    "accessToken",
+    {
+      defaultValue: process.env.NEXT_PUBLIC_GUILD_TECH_ACCESS_TOKEN,
+    }
+  );
+
+  const [deviceId, setDeviceId] = useState<any>("");
 
   const [shardsTechCore, setShardsTechCore] = useState<any>(null);
 
@@ -140,17 +149,37 @@ export default function Home() {
     setMySellSlot(mySellSlot);
   };
 
-  const buyFraction = async (guildAddress: string, amount: number, chain?: string) => {
-    const response = await shardsTechCore.buyFraction(guildAddress, amount, chain);
+  const buyFraction = async (
+    guildAddress: string,
+    amount: number,
+    chain?: string
+  ) => {
+    const response = await shardsTechCore.buyFraction(
+      guildAddress,
+      amount,
+      chain
+    );
   };
 
-  const sellFraction = async (guildAddress: string, amount: number, chain?: string) => {
-    const response = await shardsTechCore.sellFraction(guildAddress, amount, chain);
+  const sellFraction = async (
+    guildAddress: string,
+    amount: number,
+    chain?: string
+  ) => {
+    const response = await shardsTechCore.sellFraction(
+      guildAddress,
+      amount,
+      chain
+    );
   };
 
   const changeOwner = async (newOwner: string) => {
-    const response = await shardsTechCore.changeGuildOwner( shardsTechCore.userGuild.address, newOwner, shardsTechCore.userInfo.userId);
-  }
+    const response = await shardsTechCore.changeGuildOwner(
+      shardsTechCore.userGuild.address,
+      newOwner,
+      shardsTechCore.userInfo.userId
+    );
+  };
 
   const usersColumns = [
     {
@@ -284,10 +313,7 @@ export default function Home() {
                 value={newOwner}
                 // newOwner is Shards Tech Id of member who will be new owner
               />
-              <Button
-                type="primary"
-                onClick={() => changeOwner(newOwner)}
-              >
+              <Button type="primary" onClick={() => changeOwner(newOwner)}>
                 Change Owner
               </Button>
             </Space.Compact>
@@ -367,8 +393,23 @@ export default function Home() {
     },
   ];
 
+  const submitDeviceId = async () => {
+    const endpoint = 'http://103.109.37.199:3000/auth/loginGuest';
+    const data = {
+      deviceId: deviceId,
+    }
+    const response = await axios.post(endpoint, data);
+    setAccessToken(response.data.accessToken);
+    // reload page
+    window.location.reload();
+  }
+
   return (
     <main>
+      <Space.Compact>
+        <Input placeholder="deviceId" value={deviceId} onChange={(value) => setDeviceId(value?.target.value)}/>
+        <Button type="primary" onClick={() => submitDeviceId()}>Login Another Account</Button>
+      </Space.Compact>
       <Button
         type="primary"
         onClick={() => setHandleFormVisible(true)}

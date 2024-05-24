@@ -7,7 +7,11 @@ interface HandleFormProps {
   shardsTechCore: any;
 }
 
-const HandleForm = ({ openHandleForm, setOpenHandleForm, shardsTechCore }: HandleFormProps) => {
+const HandleForm = ({
+  openHandleForm,
+  setOpenHandleForm,
+  shardsTechCore,
+}: HandleFormProps) => {
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -19,14 +23,15 @@ const HandleForm = ({ openHandleForm, setOpenHandleForm, shardsTechCore }: Handl
       rewardShareForMembers: Number(values.rewardShareForMembers),
       guildOwnerShare: Number(values.guildOwnerShare),
       txGuildOwnerShare: 0.9,
-    }
+    };
     const res = await shardsTechCore.createGuild(
       data.name,
       data.slotPrice,
       data.rewardShareForMembers,
       data.guildOwnerShare,
       data.txGuildOwnerShare,
-      {}
+      {},
+      values.chain
     );
     messageApi.success("Create guild success");
   };
@@ -44,6 +49,19 @@ const HandleForm = ({ openHandleForm, setOpenHandleForm, shardsTechCore }: Handl
         onOk={() => form.submit()}
       >
         <Form.Item
+          label="Chain"
+          name="chain"
+          rules={[{ required: true, message: "Please select chain!" }]}
+        >
+          <Select>
+            {shardsTechCore?.gameConfig?.chains.map((chain: any) => (
+              <Select.Option value={chain._id} key={chain._id}>
+                {chain.name}
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+        <Form.Item
           label="Guild Name"
           name="guildName"
           rules={[{ required: true, message: "Please input Guild Name!" }]}
@@ -58,7 +76,7 @@ const HandleForm = ({ openHandleForm, setOpenHandleForm, shardsTechCore }: Handl
             {
               pattern: /[+-]?([0-9]*[.])?[0-9]+/,
               message: "Please input valid number!",
-            }
+            },
           ]}
         >
           <Input />
@@ -74,7 +92,7 @@ const HandleForm = ({ openHandleForm, setOpenHandleForm, shardsTechCore }: Handl
             {
               pattern: /[+-]?([0-9]*[.])?[0-9]+/,
               message: "Please input valid number!",
-            }
+            },
           ]}
         >
           <Input />
@@ -90,7 +108,7 @@ const HandleForm = ({ openHandleForm, setOpenHandleForm, shardsTechCore }: Handl
             {
               pattern: /[+-]?([0-9]*[.])?[0-9]+/,
               message: "Please input valid number!",
-            }
+            },
           ]}
         >
           <Input />
