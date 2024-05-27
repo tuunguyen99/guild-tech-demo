@@ -46,6 +46,9 @@ export default function Home() {
   const [newOwner, setNewOwner] = useState<any>(null);
   const [userOnlinesShards, setUserOnlinesShards] = useState<any>(null);
 
+  const [transactionHistoryOfUser, setTransactionHistoryOfUser] = useState<any>(null);
+  const [transactionHistoryOfGuild, setTransactionHistoryOfGuild] = useState<any>(null);
+
   const [handleFormVisible, setHandleFormVisible] = useState(false);
   const initShardsTechCore = async () => {
     const shardsTech = await ShardsTechCore.init({
@@ -77,6 +80,20 @@ export default function Home() {
 
     const userOnlines = await shardsTechCore.getUserOnlineInGuild();
     setUserOnlinesShards(userOnlines);
+
+    const transactionHistoryOfUser = await shardsTechCore.getTransactionHistoryOfUser({
+      page: 1,
+      limit: 10,
+    });
+
+    setTransactionHistoryOfUser(transactionHistoryOfUser.data);
+
+    const transactionHistoryOfGuild = await shardsTechCore.getTransactionHistoryOfGuild({
+      page: 1,
+      limit: 10,
+    });
+    
+    setTransactionHistoryOfGuild(transactionHistoryOfGuild.data);
   };
 
   useEffect(() => {
@@ -196,6 +213,58 @@ export default function Home() {
       title: "Shards Tech Id",
       dataIndex: "_id",
       key: "_id",
+    },
+  ];
+
+  const userHistoryColumns = [
+    {
+      title: "Guild",
+      dataIndex: "guild",
+      key: "guild",
+      render: (guild: any) => {
+        return guild.name;
+      },
+    },
+    {
+      title: "Type",
+      dataIndex: "type",
+      key: "type",
+    },
+    {
+      title: "Amount",
+      dataIndex: "amount",
+      key: "amount",
+    },
+    {
+      title: "Price",
+      dataIndex: "price",
+      key: "price",
+    },
+  ];
+
+  const guildHistoryColumns = [
+    {
+      title: "User",
+      dataIndex: "user",
+      key: "user",
+      render: (user: any) => {
+        return user.userId;
+      },
+    },
+    {
+      title: "Type",
+      dataIndex: "type",
+      key: "type",
+    },
+    {
+      title: "Amount",
+      dataIndex: "amount",
+      key: "amount",
+    },
+    {
+      title: "Price",
+      dataIndex: "price",
+      key: "price",
     },
   ];
 
@@ -336,6 +405,34 @@ export default function Home() {
               Burn Slot
             </Button>
           </Space>
+        </div>
+      ),
+    },
+    {
+      key: "user-history",
+      label: "User History",
+      children: transactionHistoryOfUser && (
+        <div>
+          <Table
+            columns={userHistoryColumns}
+            dataSource={transactionHistoryOfUser || []}
+            rowKey={(record) => record._id}
+            pagination={false}
+          />
+        </div>
+      ),
+    },
+    {
+      key: "guild-history",
+      label: "Guild History",
+      children: transactionHistoryOfGuild && (
+        <div>
+          <Table
+            columns={guildHistoryColumns}
+            dataSource={transactionHistoryOfGuild || []}
+            rowKey={(record) => record._id}
+            pagination={false}
+          />
         </div>
       ),
     },
