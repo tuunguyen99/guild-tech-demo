@@ -1,0 +1,42 @@
+body {
+    margin: 0;
+}
+
+.text-center {
+    text-align: center;
+}
+.text-end {
+    text-align: end;
+    text-align: right;
+}
+.p-4 {
+    padding: 1rem;
+}
+.px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+.my-0 {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+.mb-4 {
+    margin-bottom: 1rem;
+}
+.mt-4 {
+    margin-top: 1rem;
+}
+.mt-0 {
+    margin-top: 0;
+}
+.ant-tabs > .ant-tabs-nav .ant-tabs-nav-list {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    .ant-tabs-tab-btn {
+        font-weight: 500;
+    }
+}
+
+.fw-semibold {
+    font-weight: 600;
+}
