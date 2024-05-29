@@ -248,7 +248,7 @@ export default function Home() {
       dataIndex: "user",
       key: "user",
       render: (user: any) => {
-        return user.userId;
+        return user && user.userId;
       },
     },
     {
