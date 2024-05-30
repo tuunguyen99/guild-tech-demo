@@ -90,7 +90,7 @@ export default function Home() {
         limit: 10,
       });
 
-    setTransactionHistoryOfUser(transactionHistoryOfUser.data);
+    setTransactionHistoryOfUser(transactionHistoryOfUser?.data);
 
     const transactionHistoryOfGuild =
       await shardsTechCore.getTransactionHistoryOfGuild({
@@ -98,7 +98,7 @@ export default function Home() {
         limit: 10,
       });
 
-    setTransactionHistoryOfGuild(transactionHistoryOfGuild.data);
+    setTransactionHistoryOfGuild(transactionHistoryOfGuild?.data);
 
     const guildsUserHaveShare = await shardsTechCore.getMyFractions();
 
