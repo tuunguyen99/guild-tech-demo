@@ -15,7 +15,7 @@ import { useEffect, useState } from "react";
 import HandleForm from "./shards-tech/_Form";
 import ShardsTabChat from "./shards-tech/_TabChat";
 import axios from "axios";
-import useSessionStorageState from 'use-session-storage-state';
+import useSessionStorageState from "use-session-storage-state";
 
 export default function Home() {
   const [accessToken, setAccessToken] = useSessionStorageState<any>(
@@ -46,8 +46,11 @@ export default function Home() {
   const [newOwner, setNewOwner] = useState<any>(null);
   const [userOnlinesShards, setUserOnlinesShards] = useState<any>(null);
 
-  const [transactionHistoryOfUser, setTransactionHistoryOfUser] = useState<any>(null);
-  const [transactionHistoryOfGuild, setTransactionHistoryOfGuild] = useState<any>(null);
+  const [transactionHistoryOfUser, setTransactionHistoryOfUser] =
+    useState<any>(null);
+  const [transactionHistoryOfGuild, setTransactionHistoryOfGuild] =
+    useState<any>(null);
+  const [guildsUserHaveShare, setGuildsUserHaveShare] = useState<any>(null);
 
   const [handleFormVisible, setHandleFormVisible] = useState(false);
   const initShardsTechCore = async () => {
@@ -81,19 +84,25 @@ export default function Home() {
     const userOnlines = await shardsTechCore.getUserOnlineInGuild();
     setUserOnlinesShards(userOnlines);
 
-    const transactionHistoryOfUser = await shardsTechCore.getTransactionHistoryOfUser({
-      page: 1,
-      limit: 10,
-    });
+    const transactionHistoryOfUser =
+      await shardsTechCore.getTransactionHistoryOfUser({
+        page: 1,
+        limit: 10,
+      });
 
     setTransactionHistoryOfUser(transactionHistoryOfUser.data);
 
-    const transactionHistoryOfGuild = await shardsTechCore.getTransactionHistoryOfGuild({
-      page: 1,
-      limit: 10,
-    });
-    
+    const transactionHistoryOfGuild =
+      await shardsTechCore.getTransactionHistoryOfGuild({
+        page: 1,
+        limit: 10,
+      });
+
     setTransactionHistoryOfGuild(transactionHistoryOfGuild.data);
+
+    const guildsUserHaveShare = await shardsTechCore.getMyFractions();
+
+    setGuildsUserHaveShare(guildsUserHaveShare);
   };
 
   useEffect(() => {
@@ -213,6 +222,39 @@ export default function Home() {
       title: "Shards Tech Id",
       dataIndex: "_id",
       key: "_id",
+    },
+  ];
+
+  const userHaveShareColumns = [
+    {
+      title: "Guild",
+      dataIndex: "guild",
+      key: "guild",
+      render: (guild: any) => {
+        return guild?.name;
+      },
+    },
+    {
+      title: "amount",
+      dataIndex: "amount",
+      key: "amount",
+    },
+    {
+      title: "Actions",
+      dataIndex: "guild",
+      key: "action",
+      render: (guild: any) => {
+        return (
+          <Space>
+            <Button onClick={() => buyFraction(guild.address, 1, guild.chain)}>
+              Buy Fraction
+            </Button>
+            <Button onClick={() => sellFraction(guild.address, 1, guild.chain)}>
+              Sell Fraction
+            </Button>
+          </Space>
+        );
+      },
     },
   ];
 
@@ -409,6 +451,20 @@ export default function Home() {
       ),
     },
     {
+      key: "user-share",
+      label: "User Fraction",
+      children: guildsUserHaveShare && (
+        <div>
+          <Table
+            columns={userHaveShareColumns}
+            dataSource={guildsUserHaveShare || []}
+            rowKey={(record) => record?.guild?._id}
+            pagination={false}
+          />
+        </div>
+      ),
+    },
+    {
       key: "user-history",
       label: "User History",
       children: transactionHistoryOfUser && (
@@ -491,21 +547,27 @@ export default function Home() {
   ];
 
   const submitDeviceId = async () => {
-    const endpoint = 'http://103.109.37.199:3000/auth/loginGuest';
+    const endpoint = "http://103.109.37.199:3000/auth/loginGuest";
     const data = {
       deviceId: deviceId,
-    }
+    };
     const response = await axios.post(endpoint, data);
     setAccessToken(response.data.accessToken);
     // reload page
     window.location.reload();
-  }
+  };
 
   return (
     <main>
       <Space.Compact>
-        <Input placeholder="deviceId" value={deviceId} onChange={(value) => setDeviceId(value?.target.value)}/>
-        <Button type="primary" onClick={() => submitDeviceId()}>Login Another Account</Button>
+        <Input
+          placeholder="deviceId"
+          value={deviceId}
+          onChange={(value) => setDeviceId(value?.target.value)}
+        />
+        <Button type="primary" onClick={() => submitDeviceId()}>
+          Login Another Account
+        </Button>
       </Space.Compact>
       <Button
         type="primary"
