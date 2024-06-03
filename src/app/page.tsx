@@ -37,6 +37,12 @@ export default function Home() {
   const [listShards, setListShards] = useState<any>(null);
   const [myShards, setMyShards] = useState<any>(null);
   const [buySlotPrice, setBuySlotPrice] = useState<any>(null);
+  const [myJoinGuildRequest, setMyJoinGuildRequest] = useState<any>(null);
+  const [isOwner, setIsOwner] = useState<any>(false);
+
+  const [joinGuildRequestOfGuild, setJoinGuildRequestOfGuild] =
+    useState<any>(null);
+
   const [openBuySlotPrice, setOpenBuySlotPrice] = useState<any>(null);
   const [mySellSlot, setMySellSlot] = useState<any>(null);
 
@@ -103,6 +109,20 @@ export default function Home() {
     const guildsUserHaveShare = await shardsTechCore.getMyFractions();
 
     setGuildsUserHaveShare(guildsUserHaveShare);
+
+    const myJoinGuildRequest = await shardsTechCore.getJoinGuildOfUser();
+    setMyJoinGuildRequest(myJoinGuildRequest);
+
+    const joinGuildRequestOfGuild = shardsTechCore?.userGuild?._id
+      ? await shardsTechCore.getJoinGuildRequest(shardsTechCore.userGuild._id)
+      : [];
+    console.log("joinGuildRequestOfGuild", joinGuildRequestOfGuild);
+    setJoinGuildRequestOfGuild(joinGuildRequestOfGuild);
+
+    console.log("shardsTechCore?.userGuild", shardsTechCore?.userGuild);
+    console.log("shardsTechCore?.userInfo", shardsTechCore?.userInfo);
+    const isOwner = shardsTechCore?.userGuild?.owner?._id === shardsTechCore?.userInfo?._id;
+    setIsOwner(isOwner);
   };
 
   useEffect(() => {
@@ -146,6 +166,12 @@ export default function Home() {
     const response = await shardsTechCore.getBuySlotPrice(guildId);
     setBuySlotPrice(response);
     setOpenBuySlotPrice(true);
+  };
+
+  const createJoinGuildRequest = async (guildId: string) => {
+    const response = await shardsTechCore.createJoinGuildRequest(guildId);
+    const myJoinGuildRequest = await shardsTechCore.getJoinGuildOfUser();
+    setMyJoinGuildRequest(myJoinGuildRequest);
   };
 
   const updatePriceSellSlot = async (sellSlotId: string, price: number) => {
@@ -310,6 +336,52 @@ export default function Home() {
     },
   ];
 
+  const joinGuildRequestColumns = [
+    {
+      title: "User",
+      dataIndex: "userId",
+      key: "userId",
+      //   render: (user: any) => {
+      //     return user && user.userId;
+      //   },
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+    },
+    {
+      title: "Actions",
+      dataIndex: "status",
+      key: "action",
+      render: (status: any, record: any) => {
+        const isAccepted = status === "accepted";
+        const isRejected = status === "rejected";
+        const isPending = status === "pending";
+        if (isAccepted) {
+          return <Button disabled>Accepted</Button>;
+        }
+        if (isRejected) {
+          return <Button disabled>Rejected</Button>;
+        }
+        return (
+          <Space>
+            <Button
+              onClick={() => shardsTechCore.acceptJoinGuildRequest(record.userId, record.guild)}
+            >
+              Accept
+            </Button>
+            <Button
+              onClick={() => shardsTechCore.rejectJoinGuildRequest(record.userId, record.guild)}
+            >
+              Reject
+            </Button>
+          </Space>
+        );
+      },
+    },
+  ];
+
   const shardsGuildsColumns = [
     {
       title: "Rank",
@@ -336,12 +408,51 @@ export default function Home() {
       title: "Actions",
       dataIndex: "guild",
       key: "action",
-      render: (guild: any) => {
-        return (
-          <Space>
+      render: (guild: any, record: any) => {
+        const isJoinGuildAccepted = myJoinGuildRequest?.find(
+          (item: any) => item.guild === guild._id && item.status === "accepted"
+        );
+        const isJoinGuildPending = myJoinGuildRequest?.find(
+          (item: any) => item.guild === guild._id && item.status === "pending"
+        );
+        const isJoinGuildRejected = myJoinGuildRequest?.find(
+          (item: any) => item.guild === guild._id && item.status === "rejected"
+        );
+        const isRequestJoinGuild = myJoinGuildRequest?.find(
+          (item: any) => item.guild === guild._id
+        );
+        const isAlreadyJoinGuild = shardsTechCore.userGuild?._id;
+        let buttonBuySlot = (
+          <Button onClick={() => getSlotPrice(guild._id)}>
+            Get Slot Price
+          </Button>
+        );
+        if (isJoinGuildAccepted) {
+          buttonBuySlot = (
             <Button onClick={() => getSlotPrice(guild._id)}>
               Get Slot Price
             </Button>
+          );
+        }
+        if (isJoinGuildPending) {
+          buttonBuySlot = <Button disabled>Join Request Pending</Button>;
+        }
+        if (isJoinGuildRejected) {
+          buttonBuySlot = <Button disabled>Join Request Rejected</Button>;
+        }
+        if (!isRequestJoinGuild) {
+          buttonBuySlot = (
+            <Button onClick={() => createJoinGuildRequest(guild._id)}>
+              Requested
+            </Button>
+          );
+        }
+        if (isAlreadyJoinGuild) {
+          buttonBuySlot = <Button disabled>Already Join Guild</Button>;
+        }
+        return (
+          <Space>
+            {buttonBuySlot}
             <Button onClick={() => buyFraction(guild.address, 1, guild.chain)}>
               Buy Fraction
             </Button>
@@ -447,6 +558,20 @@ export default function Home() {
               Burn Slot
             </Button>
           </Space>
+        </div>
+      ),
+    },
+    {
+      key: "join-guild-request",
+      label: "Join Guild Request",
+      children: joinGuildRequestOfGuild && isOwner && (
+        <div>
+          <Table
+            columns={joinGuildRequestColumns}
+            dataSource={joinGuildRequestOfGuild || []}
+            rowKey={(record) => record?._id}
+            pagination={false}
+          />
         </div>
       ),
     },
