@@ -1,24 +1,11 @@
 "use client";
-import {
-  CrownTwoTone,
-  FireTwoTone,
-  InfoCircleTwoTone,
-  MinusCircleTwoTone,
-  MoreOutlined,
-  PictureFilled,
-  TagTwoTone,
-  UserOutlined,
-} from "@ant-design/icons";
+import { PictureFilled } from "@ant-design/icons";
 import { ShardsTechCore } from "@mirailabs-co/shards-tech";
 import {
   Avatar,
   Badge,
   Button,
   Descriptions,
-  Dropdown,
-  Empty,
-  Flex,
-  FloatButton,
   Form,
   Input,
   InputNumber,
@@ -31,9 +18,9 @@ import {
 import axios from "axios";
 import { useEffect, useState } from "react";
 import useSessionStorageState from "use-session-storage-state";
-import HandleForm from "./shards-tech/_Form";
 import ShardsTabChat from "./shards-tech/_TabChat";
 import LeaderBoards from "./components/LeaderBoards";
+import MyGuild from "./components/MyGuild";
 
 export default function Home() {
   const shortAddress = (address: string) => {
@@ -48,30 +35,21 @@ export default function Home() {
   const [shardsTechCore, setShardsTechCore] = useState<any | null>(null);
 
   const [myShards, setMyShards] = useState<any>(null);
-  const [buySlotPrice, setBuySlotPrice] = useState<any>(null);
   const [myJoinGuildRequest, setMyJoinGuildRequest] = useState<any>(null);
   const [isOwner, setIsOwner] = useState<any>(false);
 
   const [joinGuildRequestOfGuild, setJoinGuildRequestOfGuild] =
     useState<any>(null);
-  const [openChangeOwnerModal, setOpenChangeOwnerModal] = useState<any>(null);
-  const [openSellSlotModal, setOpenSellSlotModal] = useState<any>(null);
-  const [openBuySlotPrice, setOpenBuySlotPrice] = useState<any>(null);
   const [mySellSlot, setMySellSlot] = useState<any>(null);
 
-  const [price, setPrice] = useState<any>(null);
   const [updatePrice, setUpdatePrice] = useState<any>(null);
 
-  const [newOwner, setNewOwner] = useState<any>(null);
   const [userOnlinesShards, setUserOnlinesShards] = useState<any>(null);
 
   const [transactionHistoryOfUser, setTransactionHistoryOfUser] =
     useState<any>(null);
-  const [transactionHistoryOfGuild, setTransactionHistoryOfGuild] =
-    useState<any>(null);
   const [guildsUserHaveShare, setGuildsUserHaveShare] = useState<any>(null);
 
-  const [handleFormVisible, setHandleFormVisible] = useState(false);
   const initShardsTechCore = async () => {
     const shardsTech = await ShardsTechCore.init({
       clientId: "7421609e-545a-4256-99da-12f3308713b0",
@@ -104,14 +82,6 @@ export default function Home() {
       });
 
     setTransactionHistoryOfUser(transactionHistoryOfUser?.data);
-
-    const transactionHistoryOfGuild =
-      await shardsTechCore.getTransactionHistoryOfGuild({
-        page: 1,
-        limit: 10,
-      });
-
-    setTransactionHistoryOfGuild(transactionHistoryOfGuild?.data);
 
     const guildsUserHaveShare = await shardsTechCore.getMyFractions();
 
@@ -248,37 +218,8 @@ export default function Home() {
     }
   }, [shardsTechCore]);
 
-  const buyShardSlot = async () => {
-    const response = await shardsTechCore.buySlot(
-      buySlotPrice.guild.address,
-      buySlotPrice.seller,
-      buySlotPrice.price,
-      buySlotPrice.guild.chain
-    );
-    await shardsTechCore.getGuildOfUser();
-    setOpenBuySlotPrice(false);
-  };
-
-  const getSlotPrice = async (guildId: string) => {
-    const response = await shardsTechCore.getBuySlotPrice(guildId);
-    setBuySlotPrice(response);
-    setOpenBuySlotPrice(true);
-  };
-
   const cancelSellSlot = async (sellSlotId: string) => {
     const response = await shardsTechCore.cancelSellSlot(sellSlotId);
-    await shardsTechCore.getGuildOfUser();
-    const mySellSlot = await shardsTechCore.getMySellMemberSlot();
-    setMySellSlot(mySellSlot);
-  };
-
-  const burnSlotShard = async (guildId: string) => {
-    const response = await shardsTechCore.burnSlot(guildId);
-    await shardsTechCore.getGuildOfUser();
-  };
-
-  const sellSlot = async (guildId: string, price: number) => {
-    const response = await shardsTechCore.sellSlot(guildId, price);
     await shardsTechCore.getGuildOfUser();
     const mySellSlot = await shardsTechCore.getMySellMemberSlot();
     setMySellSlot(mySellSlot);
@@ -307,41 +248,6 @@ export default function Home() {
       chain
     );
   };
-
-  const changeOwner = async (newOwner: string) => {
-    const response = await shardsTechCore.changeGuildOwner(
-      shardsTechCore.userGuild.address,
-      newOwner,
-      shardsTechCore.userInfo.userId
-    );
-  };
-
-  const usersColumns = [
-    {
-      title: "Address",
-      dataIndex: "address",
-      key: "address",
-      render: (address: string) => {
-        return shortAddress(address);
-      },
-    },
-    {
-      title: "UserId",
-      dataIndex: "userId",
-      key: "userId",
-      render: (uId: string) => {
-        return uId.slice(0, 4) + "..." + uId.slice(-4);
-      },
-    },
-    {
-      title: "Shards Id",
-      dataIndex: "_id",
-      key: "_id",
-      render: (id: string) => {
-        return id.slice(0, 4) + "..." + id.slice(-4);
-      },
-    },
-  ];
 
   const userHistoryColumns = [
     {
@@ -408,175 +314,7 @@ export default function Home() {
     {
       key: "2",
       label: "My Guild",
-      children: shardsTechCore?.userGuild ? (
-        <>
-          <div className="px-4">
-            <Space align="center" size={"middle"} className="mb-4">
-              {shardsTechCore.userGuild.metadata?.avatar ? (
-                <Avatar
-                  src={shardsTechCore.userGuild.metadata?.avatar}
-                  size={64}
-                  shape="square"
-                />
-              ) : (
-                <Avatar icon={<PictureFilled />} size={64} shape="square" />
-              )}
-              <Space direction="vertical" style={{ gap: "0.25rem" }}>
-                <Typography.Title className="my-0" level={4}>
-                  {shardsTechCore.userGuild.name}
-                </Typography.Title>
-                <Space>
-                  <Badge
-                    count={`Lv: ${shardsTechCore.userGuild.metadata?.level}`}
-                    color="#1677ff"
-                  />
-                  <Badge
-                    count={`Rank: ${shardsTechCore.userGuild.metadata?.rank}`}
-                    color="#52c41a"
-                  />
-                </Space>
-              </Space>
-            </Space>
-            <Typography.Paragraph type="secondary">
-              {shardsTechCore.userGuild.metadata?.description ? (
-                shardsTechCore.userGuild.metadata?.description
-              ) : (
-                <Typography.Text type="secondary">
-                  Guild Descriptions...
-                </Typography.Text>
-              )}
-            </Typography.Paragraph>
-            <Descriptions
-              className="mb-4"
-              title="Earning Distribution"
-              items={[
-                { key: "1", label: "Guild Master", children: "20%" },
-                { key: "2", label: "Seat Owners", children: "60%" },
-                { key: "3", label: "Fraction Owners", children: "20%" },
-              ]}
-            ></Descriptions>
-          </div>
-          <FloatButton.Group
-            trigger="click"
-            type="primary"
-            style={{ right: 24 }}
-            icon={<MoreOutlined />}
-          >
-            <FloatButton
-              tooltip={<div>Burn Slot</div>}
-              icon={<FireTwoTone twoToneColor={"#FF9900"} />}
-              onClick={() => burnSlotShard(shardsTechCore.userGuild._id)}
-            />
-            <FloatButton
-              tooltip={<div>Sell Slot</div>}
-              icon={<TagTwoTone twoToneColor={"#f81d22"} />}
-              onClick={() => setOpenSellSlotModal(true)}
-            />
-            <FloatButton
-              tooltip={<div>Change Owner</div>}
-              icon={<CrownTwoTone />}
-              onClick={() => setOpenChangeOwnerModal(true)}
-            />
-          </FloatButton.Group>
-          <Tabs
-            defaultActiveKey="1"
-            type="card"
-            items={[
-              {
-                key: "1",
-                label: "Members",
-                children: shardsTechCore.userGuild?.users && (
-                  <Table
-                    columns={usersColumns}
-                    dataSource={shardsTechCore.userGuild?.users || []}
-                    rowKey={(record) => record._id}
-                    pagination={false}
-                    scroll={{ x: "max-content" }}
-                    className="mb-4"
-                  />
-                ),
-              },
-              {
-                key: "2",
-                label: "Activity",
-                children: transactionHistoryOfGuild && (
-                  <Space size={"large"} direction="vertical" className="mt-4">
-                    {transactionHistoryOfGuild?.map((item: any, i: number) => (
-                      <Space
-                        size={"middle"}
-                        key={i}
-                        className="px-4"
-                        align="start"
-                      >
-                        <Avatar size={40} icon={<UserOutlined />} />
-                        <Space direction="vertical" style={{ gap: "0" }}>
-                          <Typography.Text className="fw-semibold">
-                            {`${item?.user?.address.slice(
-                              0,
-                              6
-                            )}...${item?.user?.address.slice(-4)}`}{" "}
-                            {item.type === "buy_slot" ||
-                            item.type === "buy_share" ? (
-                              <Typography.Text type="success">
-                                Buy
-                              </Typography.Text>
-                            ) : item.type === "sell_slot" ||
-                              item.type === "sell_share" ? (
-                              <Typography.Text type="danger">
-                                Sell
-                              </Typography.Text>
-                            ) : item.type === "burn_slot" ? (
-                              <Typography.Text type="warning">
-                                Burn
-                              </Typography.Text>
-                            ) : item.type === "cancel_sell_slot" ? (
-                              "Cancel selling"
-                            ) : (
-                              ""
-                            )}{" "}
-                            {item.type == "buy_share" ||
-                            item.type == "sell_share"
-                              ? item.amount + " Fractions"
-                              : "a Slot"}{" "}
-                            of guild {item?.guild.name} by {item.price} ETH
-                          </Typography.Text>
-                          <Typography.Text
-                            type="secondary"
-                            style={{ fontSize: "11px" }}
-                          >
-                            {item.createdAt}
-                          </Typography.Text>
-                        </Space>
-                      </Space>
-                    ))}
-                  </Space>
-                ),
-              },
-            ]}
-          />
-        </>
-      ) : (
-        <>
-          <Empty description="" className="p-4">
-            <Flex vertical align="center" className="text-center">
-              <Typography.Title className="mt-0" level={4}>
-                You haven&apos;t joined any guild.
-              </Typography.Title>
-              <Typography.Paragraph type="secondary">
-                Create a new guild or buy a slot from a guild that already
-                exists on the system.
-              </Typography.Paragraph>
-              <Button
-                type="primary"
-                onClick={() => setHandleFormVisible(true)}
-                style={{ marginTop: 8 }}
-              >
-                Create New Guild
-              </Button>
-            </Flex>
-          </Empty>
-        </>
-      ),
+      children: <MyGuild />,
     },
     {
       key: "join-guild-request",
@@ -727,95 +465,6 @@ export default function Home() {
         </Button> */}
       {/* <Tabs defaultActiveKey="1" items={items} /> */}
       <Tabs defaultActiveKey="1" items={shardItems} />
-      <HandleForm
-        openHandleForm={handleFormVisible}
-        setOpenHandleForm={setHandleFormVisible}
-        shardsTechCore={shardsTechCore}
-      />
-      <Modal
-        title="Slot Info"
-        open={openBuySlotPrice}
-        onOk={() => buyShardSlot()}
-        onCancel={() => setOpenBuySlotPrice(false)}
-      >
-        <Space direction="vertical" size="large" className="mt-4">
-          <Space align="center" size={"middle"} className="mb-4">
-            {buySlotPrice?.guild?.avatar ? (
-              <Avatar
-                src={buySlotPrice?.guild?.avatar}
-                size={48}
-                shape="square"
-              />
-            ) : (
-              <Avatar size={48} shape="square" icon={<PictureFilled />} />
-            )}
-            <Space direction="vertical" style={{ gap: "0.25rem" }}>
-              <Typography.Title className="my-0" level={4}>
-                {buySlotPrice?.guild?.name}
-              </Typography.Title>
-              <Space>
-                <Badge
-                  count={`Lv: ${buySlotPrice?.guild?.level}`}
-                  color="#1677ff"
-                />
-                <Badge
-                  count={`Rank: ${buySlotPrice?.guild?.rank}`}
-                  color="#52c41a"
-                />
-              </Space>
-            </Space>
-          </Space>
-          <Space size={"small"} direction="vertical">
-            <Typography.Text type="secondary">Seller</Typography.Text>
-            <Typography.Text className="fw-semibold">
-              {shortAddress(buySlotPrice?.seller)}
-            </Typography.Text>
-          </Space>
-          <Space size={"small"} direction="vertical">
-            <Typography.Text type="secondary">Price</Typography.Text>
-            <Typography.Text className="fw-semibold">
-              {buySlotPrice?.price} ETH
-            </Typography.Text>
-          </Space>
-        </Space>
-      </Modal>
-      <Modal
-        title="Change Owner"
-        open={openChangeOwnerModal}
-        onOk={() => changeOwner(newOwner)}
-        onCancel={() => setOpenChangeOwnerModal(false)}
-      >
-        <Form layout="vertical" autoComplete="off">
-          <Form.Item name="name" label="User ID">
-            <Input
-              size="large"
-              placeholder="enter user id"
-              onChange={(e) => setNewOwner(e.target.value)}
-              value={newOwner}
-            />
-          </Form.Item>
-        </Form>
-      </Modal>
-
-      <Modal
-        title="Sell Slot"
-        open={openSellSlotModal}
-        onOk={() => sellSlot(shardsTechCore.userGuild._id, price)}
-        onCancel={() => setOpenSellSlotModal(false)}
-      >
-        <Form layout="vertical" autoComplete="off">
-          <Form.Item name="sellprice" label="Set price:">
-            <InputNumber
-              suffix="ETH"
-              onChange={(value) => setPrice(value)}
-              value={price}
-              style={{ width: "100%" }}
-              placeholder="0"
-              size="large"
-            />
-          </Form.Item>
-        </Form>
-      </Modal>
     </main>
   );
 }

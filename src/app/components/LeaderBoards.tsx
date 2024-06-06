@@ -1,12 +1,23 @@
 "use client";
 import { useContext, useEffect, useState } from "react";
 import { HomeContext } from "../layout";
-import { Button, Select, Space, Table } from "antd";
+import {
+  Avatar,
+  Badge,
+  Button,
+  Modal,
+  Select,
+  Space,
+  Table,
+  Typography,
+} from "antd";
 import {
   GuildType,
   LeaderBoardType,
   ShardsGuildType,
 } from "../app-constants/type";
+import { PictureFilled } from "@ant-design/icons";
+import { shortAddress } from "../app-utils";
 
 const LeaderBoards = () => {
   const { shardsTechCore, shardsTechConnection } = useContext(HomeContext);
@@ -17,6 +28,8 @@ const LeaderBoards = () => {
     useState<string>();
   const [listShardsGuild, setListShardsGuild] = useState<ShardsGuildType[]>();
   const [myJoinGuildRequest, setMyJoinGuildRequest] = useState<any>(null);
+  const [openBuySlotPrice, setOpenBuySlotPrice] = useState<boolean>(false);
+  const [buySlotPrice, setBuySlotPrice] = useState<any>(null);
 
   const handleLeaderBoard = async () => {
     try {
@@ -34,9 +47,17 @@ const LeaderBoards = () => {
       console.log("error >>>", error);
     }
   };
-  useEffect(() => {
-    handleLeaderBoard();
-  }, [shardsTechCore]);
+
+  const buyShardSlot = async () => {
+    const response = await shardsTechCore.buySlot(
+      buySlotPrice.guild.address,
+      buySlotPrice.seller,
+      buySlotPrice.price,
+      buySlotPrice.guild.chain
+    );
+    await shardsTechCore.getGuildOfUser();
+    setOpenBuySlotPrice(false);
+  };
 
   const getShardsGuilds = async () => {
     if (!shardsTechConnection) {
@@ -53,6 +74,10 @@ const LeaderBoards = () => {
   };
 
   useEffect(() => {
+    handleLeaderBoard();
+  }, [shardsTechCore]);
+
+  useEffect(() => {
     if (shardsTechLeaderBoards) {
       getShardsGuilds();
     }
@@ -60,8 +85,8 @@ const LeaderBoards = () => {
 
   const getSlotPrice = async (guildId: string) => {
     const response = await shardsTechCore.getBuySlotPrice(guildId);
-    // setBuySlotPrice(response);
-    // setOpenBuySlotPrice(true);
+    setBuySlotPrice(response);
+    setOpenBuySlotPrice(true);
   };
 
   const createJoinGuildRequest = async (guildId: string) => {
@@ -98,13 +123,14 @@ const LeaderBoards = () => {
     if (shardsTechCore && shardsTechCore.userGuild?._id) {
       return <Button disabled>Already Join Guild</Button>;
     }
-    let status;
 
     if (!myJoinGuildRequest || !myJoinGuildRequest.length) {
       return (
         <Button onClick={() => getSlotPrice(guild._id)}>Get Slot Price</Button>
       );
     }
+
+    let status;
 
     for (let item of myJoinGuildRequest) {
       if (item.guild === guild._id) {
@@ -174,6 +200,7 @@ const LeaderBoards = () => {
     },
   ];
 
+  //TODO: new UI
   // const shardsGuildsColumns = [
   //     {
   //         title: "Rank",
@@ -242,30 +269,79 @@ const LeaderBoards = () => {
   // ];
 
   return (
-    <div>
-      <div className="px-4 mb-4">
-        <Select
-          placeholder="Select leader board"
-          onChange={(value) => setSelectedShardsLeaderBoard(value)}
-        >
-          {shardsTechLeaderBoards?.map((leaderBoard: LeaderBoardType) => {
-            return (
-              <Select.Option key={leaderBoard._id} value={leaderBoard._id}>
-                {leaderBoard.name}
-              </Select.Option>
-            );
-          })}
-        </Select>
+    <>
+      <div>
+        <div className="px-4 mb-4">
+          <Select
+            placeholder="Select leader board"
+            onChange={(value) => setSelectedShardsLeaderBoard(value)}
+          >
+            {shardsTechLeaderBoards?.map((leaderBoard: LeaderBoardType) => {
+              return (
+                <Select.Option key={leaderBoard._id} value={leaderBoard._id}>
+                  {leaderBoard.name}
+                </Select.Option>
+              );
+            })}
+          </Select>
+        </div>
+        {listShardsGuild?.length ? (
+          <Table
+            columns={shardsGuildsColumns}
+            dataSource={listShardsGuild}
+            rowKey={(record) => record.guild._id}
+            pagination={false}
+          />
+        ) : null}
       </div>
-      {listShardsGuild && (
-        <Table
-          columns={shardsGuildsColumns}
-          dataSource={listShardsGuild}
-          rowKey={(record) => record.guild._id}
-          pagination={false}
-        />
-      )}
-    </div>
+      <Modal
+        title="Slot Info"
+        open={openBuySlotPrice}
+        onOk={() => buyShardSlot()}
+        onCancel={() => setOpenBuySlotPrice(false)}
+      >
+        <Space direction="vertical" size="large" className="mt-4">
+          <Space align="center" size={"middle"} className="mb-4">
+            {buySlotPrice?.guild?.avatar ? (
+              <Avatar
+                src={buySlotPrice?.guild?.avatar}
+                size={48}
+                shape="square"
+              />
+            ) : (
+              <Avatar size={48} shape="square" icon={<PictureFilled />} />
+            )}
+            <Space direction="vertical" style={{ gap: "0.25rem" }}>
+              <Typography.Title className="my-0" level={4}>
+                {buySlotPrice?.guild?.name}
+              </Typography.Title>
+              <Space>
+                <Badge
+                  count={`Lv: ${buySlotPrice?.guild?.level || "--"}`}
+                  color="#1677ff"
+                />
+                <Badge
+                  count={`Rank: ${buySlotPrice?.guild?.rank || "--"}`}
+                  color="#52c41a"
+                />
+              </Space>
+            </Space>
+          </Space>
+          <Space size={"small"} direction="vertical">
+            <Typography.Text type="secondary">Seller</Typography.Text>
+            <Typography.Text className="fw-semibold">
+              {shortAddress(buySlotPrice?.seller)}
+            </Typography.Text>
+          </Space>
+          <Space size={"small"} direction="vertical">
+            <Typography.Text type="secondary">Price</Typography.Text>
+            <Typography.Text className="fw-semibold">
+              {buySlotPrice?.price} ETH
+            </Typography.Text>
+          </Space>
+        </Space>
+      </Modal>
+    </>
   );
 };
 

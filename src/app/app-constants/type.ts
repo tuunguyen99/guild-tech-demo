@@ -54,3 +54,26 @@ export type LeaderBoardType = {
   _id: string;
   __v: string;
 };
+
+export type TransactionGuild = {
+  _id: string;
+  guild: string;
+  user: {
+    _id: string;
+    clientId: string;
+    userId: string;
+    address: string;
+    createdAt: string;
+    __v: number;
+  };
+  address: string;
+  txHash: string;
+  type: "buy_share";
+  amount: number;
+  price: number;
+  status: "success";
+  clientId: string;
+  chain: string;
+  createdAt: string;
+  __v: number;
+};
