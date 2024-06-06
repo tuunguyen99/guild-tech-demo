@@ -1,0 +1,272 @@
+"use client";
+import { useContext, useEffect, useState } from "react";
+import { HomeContext } from "../layout";
+import { Button, Select, Space, Table } from "antd";
+import {
+  GuildType,
+  LeaderBoardType,
+  ShardsGuildType,
+} from "../app-constants/type";
+
+const LeaderBoards = () => {
+  const { shardsTechCore, shardsTechConnection } = useContext(HomeContext);
+  const [shardsTechLeaderBoards, setShardsTechLeaderBoards] = useState<
+    LeaderBoardType[]
+  >([]);
+  const [selectedShardsLeaderBoard, setSelectedShardsLeaderBoard] =
+    useState<string>();
+  const [listShardsGuild, setListShardsGuild] = useState<ShardsGuildType[]>();
+  const [myJoinGuildRequest, setMyJoinGuildRequest] = useState<any>(null);
+
+  const handleLeaderBoard = async () => {
+    try {
+      if (!shardsTechCore) {
+        return;
+      }
+      const leaderBoards = await shardsTechCore.getLeaderBoards();
+      if (leaderBoards && leaderBoards.length) {
+        setShardsTechLeaderBoards(leaderBoards);
+        setSelectedShardsLeaderBoard(leaderBoards[0]?._id);
+      }
+      const myJoinGuildRequest = await shardsTechCore.getJoinGuildOfUser();
+      setMyJoinGuildRequest(myJoinGuildRequest);
+    } catch (error) {
+      console.log("error >>>", error);
+    }
+  };
+  useEffect(() => {
+    handleLeaderBoard();
+  }, [shardsTechCore]);
+
+  const getShardsGuilds = async () => {
+    if (!shardsTechConnection) {
+      console.log("ShardsTech not connected");
+      return;
+    }
+    const shards = await shardsTechCore.getGuildScores({
+      leaderBoardId: selectedShardsLeaderBoard,
+      page: 1,
+      limit: 100,
+      sort: "desc",
+    });
+    setListShardsGuild(shards?.data);
+  };
+
+  useEffect(() => {
+    if (shardsTechLeaderBoards) {
+      getShardsGuilds();
+    }
+  }, [shardsTechLeaderBoards]);
+
+  const getSlotPrice = async (guildId: string) => {
+    const response = await shardsTechCore.getBuySlotPrice(guildId);
+    // setBuySlotPrice(response);
+    // setOpenBuySlotPrice(true);
+  };
+
+  const createJoinGuildRequest = async (guildId: string) => {
+    const response = await shardsTechCore.createJoinGuildRequest(guildId);
+    const myJoinGuildRequest = await shardsTechCore.getJoinGuildOfUser();
+    setMyJoinGuildRequest(myJoinGuildRequest);
+  };
+
+  const buyFraction = async (
+    guildAddress: string,
+    amount: number,
+    chain?: string
+  ) => {
+    const response = await shardsTechCore.buyFraction(
+      guildAddress,
+      amount,
+      chain
+    );
+  };
+
+  const sellFraction = async (
+    guildAddress: string,
+    amount: number,
+    chain?: string
+  ) => {
+    const response = await shardsTechCore.sellFraction(
+      guildAddress,
+      amount,
+      chain
+    );
+  };
+
+  const renderBtnBuySlot = (guild: GuildType) => {
+    if (shardsTechCore && shardsTechCore.userGuild?._id) {
+      return <Button disabled>Already Join Guild</Button>;
+    }
+    let status;
+
+    if (!myJoinGuildRequest || !myJoinGuildRequest.length) {
+      return (
+        <Button onClick={() => getSlotPrice(guild._id)}>Get Slot Price</Button>
+      );
+    }
+
+    for (let item of myJoinGuildRequest) {
+      if (item.guild === guild._id) {
+        status = item?.status;
+      }
+    }
+
+    switch (status) {
+      case "accepted":
+        return (
+          <Button onClick={() => getSlotPrice(guild._id)}>
+            Get Slot Price
+          </Button>
+        );
+      case "pending":
+        return <Button disabled>Join Request Pending</Button>;
+      case "rejected":
+        return <Button disabled>Join Request Rejected</Button>;
+      default:
+        return (
+          <Button onClick={() => createJoinGuildRequest(guild._id)}>
+            Requested
+          </Button>
+        );
+    }
+  };
+
+  const shardsGuildsColumns = [
+    {
+      title: "Rank",
+      dataIndex: "guild",
+      key: "rank",
+      render: (guild: GuildType, record: ShardsGuildType, index: number) => {
+        return guild?.metadata?.rank;
+      },
+    },
+    {
+      title: "Guild",
+      dataIndex: "guild",
+      key: "guild",
+      render: (guild: GuildType) => {
+        return guild.name;
+      },
+    },
+    {
+      title: "Score",
+      dataIndex: "score",
+      key: "score",
+    },
+    {
+      title: "Actions",
+      dataIndex: "guild",
+      key: "action",
+      render: (guild: GuildType, record: ShardsGuildType) => {
+        return (
+          <Space>
+            {renderBtnBuySlot(guild)}
+            <Button onClick={() => buyFraction(guild.address, 1, guild.chain)}>
+              Buy Fraction
+            </Button>
+            <Button onClick={() => sellFraction(guild.address, 1, guild.chain)}>
+              Sell Fraction
+            </Button>
+          </Space>
+        );
+      },
+    },
+  ];
+
+  // const shardsGuildsColumns = [
+  //     {
+  //         title: "Rank",
+  //         dataIndex: "guild",
+  //         key: "rank",
+  //         render: (guild: any, record: any, index: number) => {
+  //             return guild?.metadata?.rank;
+  //         },
+  //     },
+  //     {
+  //         title: "Guild",
+  //         dataIndex: "guild",
+  //         key: "guild",
+  //         render: (guild: any) => {
+  //             return guild.name;
+  //         },
+  //     },
+  //     {
+  //         title: "Score",
+  //         dataIndex: "score",
+  //         key: "score",
+  //     },
+  //     {
+  //         title: "",
+  //         dataIndex: "guild",
+  //         key: "action",
+  //         align: "right ",
+  //         render: (guild: any) => {
+  //             return (
+  //                 <Dropdown
+  //                     menu={{
+  //                         items: [
+  //                             {
+  //                                 key: "1",
+  //                                 label: <span onClick={() => getSlotPrice(guild._id)}>Get Slot Price</span>,
+  //                                 icon: <InfoCircleTwoTone style={{ fontSize: "0.875rem" }} />,
+  //                             },
+  //                             {
+  //                                 key: "2",
+  //                                 label: (
+  //                                     <span onClick={() => buyFraction(guild.address, 1, guild.chain)}>
+  //                                         Buy Fraction
+  //                                     </span>
+  //                                 ),
+  //                                 icon: <PlusCircleTwoTone twoToneColor="#52c41a" style={{ fontSize: "0.875rem" }} />,
+  //                             },
+  //                             {
+  //                                 key: "3",
+  //                                 label: (
+  //                                     <span onClick={() => sellFraction(guild.address, 1, guild.chain)}>
+  //                                         Sell Fraction
+  //                                     </span>
+  //                                 ),
+  //                                 icon: (
+  //                                     <MinusCircleTwoTone twoToneColor="#f81d22" style={{ fontSize: "0.875rem" }} />
+  //                                 ),
+  //                             },
+  //                         ],
+  //                     }}
+  //                 >
+  //                     <Button shape="circle" size="small" icon={<MoreOutlined />} />
+  //                 </Dropdown>
+  //             );
+  //         },
+  //     },
+  // ];
+
+  return (
+    <div>
+      <div className="px-4 mb-4">
+        <Select
+          placeholder="Select leader board"
+          onChange={(value) => setSelectedShardsLeaderBoard(value)}
+        >
+          {shardsTechLeaderBoards?.map((leaderBoard: LeaderBoardType) => {
+            return (
+              <Select.Option key={leaderBoard._id} value={leaderBoard._id}>
+                {leaderBoard.name}
+              </Select.Option>
+            );
+          })}
+        </Select>
+      </div>
+      {listShardsGuild && (
+        <Table
+          columns={shardsGuildsColumns}
+          dataSource={listShardsGuild}
+          rowKey={(record) => record.guild._id}
+          pagination={false}
+        />
+      )}
+    </div>
+  );
+};
+
+export default LeaderBoards;
