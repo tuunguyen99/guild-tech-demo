@@ -21,6 +21,7 @@ import useSessionStorageState from "use-session-storage-state";
 import ShardsTabChat from "./shards-tech/_TabChat";
 import LeaderBoards from "./components/LeaderBoards";
 import MyGuild from "./components/MyGuild";
+import JoinGuildRequest from "./components/JoinGuildRequest";
 
 export default function Home() {
   const shortAddress = (address: string) => {
@@ -35,11 +36,7 @@ export default function Home() {
   const [shardsTechCore, setShardsTechCore] = useState<any | null>(null);
 
   const [myShards, setMyShards] = useState<any>(null);
-  const [myJoinGuildRequest, setMyJoinGuildRequest] = useState<any>(null);
-  const [isOwner, setIsOwner] = useState<any>(false);
 
-  const [joinGuildRequestOfGuild, setJoinGuildRequestOfGuild] =
-    useState<any>(null);
   const [mySellSlot, setMySellSlot] = useState<any>(null);
 
   const [updatePrice, setUpdatePrice] = useState<any>(null);
@@ -86,21 +83,6 @@ export default function Home() {
     const guildsUserHaveShare = await shardsTechCore.getMyFractions();
 
     setGuildsUserHaveShare(guildsUserHaveShare);
-
-    const myJoinGuildRequest = await shardsTechCore.getJoinGuildOfUser();
-    setMyJoinGuildRequest(myJoinGuildRequest);
-
-    const joinGuildRequestOfGuild = shardsTechCore?.userGuild?._id
-      ? await shardsTechCore.getJoinGuildRequest(shardsTechCore.userGuild._id)
-      : [];
-    console.log("joinGuildRequestOfGuild", joinGuildRequestOfGuild);
-    setJoinGuildRequestOfGuild(joinGuildRequestOfGuild);
-
-    console.log("shardsTechCore?.userGuild", shardsTechCore?.userGuild);
-    console.log("shardsTechCore?.userInfo", shardsTechCore?.userInfo);
-    const isOwner =
-      shardsTechCore?.userGuild?.owner?._id === shardsTechCore?.userInfo?._id;
-    setIsOwner(isOwner);
   };
   const [accessToken, setAccessToken] = useSessionStorageState<any>(
     "accessToken",
@@ -108,12 +90,6 @@ export default function Home() {
       defaultValue: process.env.NEXT_PUBLIC_GUILD_TECH_ACCESS_TOKEN,
     }
   );
-
-  const createJoinGuildRequest = async (guildId: string) => {
-    const response = await shardsTechCore.createJoinGuildRequest(guildId);
-    const myJoinGuildRequest = await shardsTechCore.getJoinGuildOfUser();
-    setMyJoinGuildRequest(myJoinGuildRequest);
-  };
 
   const updatePriceSellSlot = async (sellSlotId: string, price: number) => {
     const response = await shardsTechCore.updateSellSlot(sellSlotId, price);
@@ -149,62 +125,6 @@ export default function Home() {
             </Button>
             <Button onClick={() => sellFraction(guild.address, 1, guild.chain)}>
               Sell Fraction
-            </Button>
-          </Space>
-        );
-      },
-    },
-  ];
-
-  const joinGuildRequestColumns = [
-    {
-      title: "User",
-      dataIndex: "userId",
-      key: "userId",
-      //   render: (user: any) => {
-      //     return user && user.userId;
-      //   },
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-    },
-    {
-      title: "Actions",
-      dataIndex: "status",
-      key: "action",
-      render: (status: any, record: any) => {
-        const isAccepted = status === "accepted";
-        const isRejected = status === "rejected";
-        const isPending = status === "pending";
-        if (isAccepted) {
-          return <Button disabled>Accepted</Button>;
-        }
-        if (isRejected) {
-          return <Button disabled>Rejected</Button>;
-        }
-        return (
-          <Space>
-            <Button
-              onClick={() =>
-                shardsTechCore.acceptJoinGuildRequest(
-                  record.userId,
-                  record.guild
-                )
-              }
-            >
-              Accept
-            </Button>
-            <Button
-              onClick={() =>
-                shardsTechCore.rejectJoinGuildRequest(
-                  record.userId,
-                  record.guild
-                )
-              }
-            >
-              Reject
             </Button>
           </Space>
         );
@@ -319,16 +239,7 @@ export default function Home() {
     {
       key: "join-guild-request",
       label: "Join Guild Request",
-      children: joinGuildRequestOfGuild && isOwner && (
-        <div>
-          <Table
-            columns={joinGuildRequestColumns}
-            dataSource={joinGuildRequestOfGuild || []}
-            rowKey={(record) => record?._id}
-            pagination={false}
-          />
-        </div>
-      ),
+      children: <JoinGuildRequest />,
     },
     {
       key: "3",
