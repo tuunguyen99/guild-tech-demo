@@ -1,45 +1,22 @@
 "use client";
-import { PictureFilled } from "@ant-design/icons";
-import { ShardsTechCore } from "@mirailabs-co/shards-tech";
-import {
-  Avatar,
-  Badge,
-  Button,
-  Descriptions,
-  Form,
-  Input,
-  InputNumber,
-  Modal,
-  Space,
-  Table,
-  Tabs,
-  Typography,
-} from "antd";
+import { Button, Space, Tabs, Typography } from "antd";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import useSessionStorageState from "use-session-storage-state";
 import ShardsTabChat from "./shards-tech/_TabChat";
 import LeaderBoards from "./components/LeaderBoards";
 import MyGuild from "./components/MyGuild";
 import JoinGuildRequest from "./components/JoinGuildRequest";
+import MySellSlot from "./components/MySellSlot";
+import MyHistory from "./components/MyHistory";
+import { HomeContext } from "./layout";
 
 export default function Home() {
-  const shortAddress = (address: string) => {
-    if (typeof address !== "string" || address.length < 10) {
-      return address;
-    }
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
-  };
+  const { shardsTechCore } = useContext(HomeContext);
 
   const [deviceId, setDeviceId] = useState<any>("");
 
-  const [shardsTechCore, setShardsTechCore] = useState<any | null>(null);
-
   const [myShards, setMyShards] = useState<any>(null);
-
-  const [mySellSlot, setMySellSlot] = useState<any>(null);
-
-  const [updatePrice, setUpdatePrice] = useState<any>(null);
 
   const [userOnlinesShards, setUserOnlinesShards] = useState<any>(null);
 
@@ -47,38 +24,12 @@ export default function Home() {
     useState<any>(null);
   const [guildsUserHaveShare, setGuildsUserHaveShare] = useState<any>(null);
 
-  const initShardsTechCore = async () => {
-    const shardsTech = await ShardsTechCore.init({
-      clientId: "7421609e-545a-4256-99da-12f3308713b0",
-      // env: "production",
-    });
-    setShardsTechCore(shardsTech);
-  };
-
-  useEffect(() => {
-    initShardsTechCore();
-  }, []);
-
   const connectShardsTech = async () => {
-    const [core, shardsTechConnection] = await shardsTechCore.connect({
-      accessToken,
-    });
     const data = await shardsTechCore.getMyFractions();
     setMyShards(data);
 
-    const mySellSlot = await shardsTechCore.getMySellMemberSlot();
-    setMySellSlot(mySellSlot);
-
     const userOnlines = await shardsTechCore.getUserOnlineInGuild();
     setUserOnlinesShards(userOnlines);
-
-    const transactionHistoryOfUser =
-      await shardsTechCore.getTransactionHistoryOfUser({
-        page: 1,
-        limit: 10,
-      });
-
-    setTransactionHistoryOfUser(transactionHistoryOfUser?.data);
 
     const guildsUserHaveShare = await shardsTechCore.getMyFractions();
 
@@ -90,14 +41,6 @@ export default function Home() {
       defaultValue: process.env.NEXT_PUBLIC_GUILD_TECH_ACCESS_TOKEN,
     }
   );
-
-  const updatePriceSellSlot = async (sellSlotId: string, price: number) => {
-    const response = await shardsTechCore.updateSellSlot(sellSlotId, price);
-    await shardsTechCore.getGuildOfUser();
-    const mySellSlot = await shardsTechCore.getMySellMemberSlot();
-    setMySellSlot(mySellSlot);
-    setUpdatePrice(null);
-  };
 
   const userHaveShareColumns = [
     {
@@ -138,13 +81,6 @@ export default function Home() {
     }
   }, [shardsTechCore]);
 
-  const cancelSellSlot = async (sellSlotId: string) => {
-    const response = await shardsTechCore.cancelSellSlot(sellSlotId);
-    await shardsTechCore.getGuildOfUser();
-    const mySellSlot = await shardsTechCore.getMySellMemberSlot();
-    setMySellSlot(mySellSlot);
-  };
-
   const buyFraction = async (
     guildAddress: string,
     amount: number,
@@ -169,62 +105,6 @@ export default function Home() {
     );
   };
 
-  const userHistoryColumns = [
-    {
-      title: "Guild",
-      dataIndex: "guild",
-      key: "guild",
-      render: (guild: any) => {
-        return guild.name;
-      },
-    },
-    {
-      title: "Action",
-      render: (amount: any, record: any) => {
-        console.log("record", record);
-        return (
-          <div>
-            {record.type} {record.amount}
-          </div>
-        );
-      },
-    },
-    {
-      title: "Volume",
-      dataIndex: "price",
-      key: "price",
-      render: (price: number) => {
-        return price + "ETH";
-      },
-    },
-  ];
-
-  const guildHistoryColumns = [
-    {
-      title: "User",
-      dataIndex: "user",
-      key: "user",
-      render: (user: any) => {
-        return user?.userId;
-      },
-    },
-    {
-      title: "Type",
-      dataIndex: "type",
-      key: "type",
-    },
-    {
-      title: "Amount",
-      dataIndex: "amount",
-      key: "amount",
-    },
-    {
-      title: "Price",
-      dataIndex: "price",
-      key: "price",
-    },
-  ];
-
   const shardItems = [
     {
       key: "1",
@@ -244,99 +124,12 @@ export default function Home() {
     {
       key: "3",
       label: "My Sell Slot",
-      children: (
-        <div className="px-4">
-          <Descriptions
-            title="Slot"
-            items={[
-              {
-                label: "Guild",
-                children: mySellSlot?.guild?.name,
-              },
-              {
-                label: "seller",
-                children: mySellSlot?.seller,
-              },
-              {
-                label: "price",
-                children: mySellSlot?.price,
-              },
-            ]}
-          />
-          <div className="mb-4">
-            <Space.Compact style={{ width: "100%" }}>
-              <InputNumber
-                onChange={(value) => setUpdatePrice(value)}
-                value={updatePrice}
-                style={{ flexGrow: 1 }}
-              />
-              <Button
-                type="primary"
-                onClick={() => updatePriceSellSlot(mySellSlot._id, updatePrice)}
-              >
-                Update Price
-              </Button>
-            </Space.Compact>
-          </div>
-          <Button onClick={() => cancelSellSlot(mySellSlot._id)} danger block>
-            Cancel Sell Slot
-          </Button>
-        </div>
-      ),
+      children: <MySellSlot />,
     },
     {
       key: "user-history",
       label: "My History",
-      children: transactionHistoryOfUser && (
-        <div>
-          <Typography.Title level={5} className="mt-0 mb-4 px-4">
-            {transactionHistoryOfUser?.length} Activities
-          </Typography.Title>
-          {/* <Table
-                        columns={userHistoryColumns}
-                        dataSource={transactionHistoryOfUser || []}
-                        rowKey={(record) => record._id}
-                        pagination={false}
-                        scroll={{ x: "max-content" }}
-                    /> */}
-          {transactionHistoryOfUser && (
-            <Space size={"large"} direction="vertical">
-              {transactionHistoryOfUser?.map((item: any, i: number) => (
-                <Space size={"middle"} key={i} className="px-4" align="start">
-                  <Avatar size={40} shape="square" icon={<PictureFilled />} />
-                  <Space direction="vertical" style={{ gap: "0" }}>
-                    <Typography.Text className="fw-semibold">
-                      You{" "}
-                      {item.type === "buy_slot" || item.type === "buy_share" ? (
-                        <Typography.Text type="success">Buy</Typography.Text>
-                      ) : item.type === "sell_slot" ||
-                        item.type === "sell_share" ? (
-                        <Typography.Text type="danger">Sell</Typography.Text>
-                      ) : item.type === "burn_slot" ? (
-                        <Typography.Text type="warning">Burn</Typography.Text>
-                      ) : item.type === "cancel_sell_slot" ? (
-                        "Cancel selling"
-                      ) : (
-                        ""
-                      )}{" "}
-                      {item.type == "buy_share" || item.type == "sell_share"
-                        ? item.amount + " Fractions"
-                        : "a Slot"}{" "}
-                      of guild {item?.guild.name} by {item.price} ETH
-                    </Typography.Text>
-                    <Typography.Text
-                      type="secondary"
-                      style={{ fontSize: "11px" }}
-                    >
-                      {item.createdAt}
-                    </Typography.Text>
-                  </Space>
-                </Space>
-              ))}
-            </Space>
-          )}
-        </div>
-      ),
+      children: <MyHistory />,
     },
     {
       key: "4",

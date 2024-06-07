@@ -5,6 +5,7 @@ import {
   Avatar,
   Badge,
   Button,
+  Dropdown,
   Modal,
   Select,
   Space,
@@ -16,7 +17,13 @@ import {
   LeaderBoardType,
   ShardsGuildType,
 } from "../app-constants/type";
-import { PictureFilled } from "@ant-design/icons";
+import {
+  InfoCircleTwoTone,
+  MinusCircleTwoTone,
+  MoreOutlined,
+  PictureFilled,
+  PlusCircleTwoTone,
+} from "@ant-design/icons";
 import { shortAddress } from "../app-utils";
 
 const LeaderBoards = () => {
@@ -121,12 +128,12 @@ const LeaderBoards = () => {
 
   const renderBtnBuySlot = (guild: GuildType) => {
     if (shardsTechCore && shardsTechCore.userGuild?._id) {
-      return <Button disabled>Already Join Guild</Button>;
+      return <span>Already Join Guild</span>;
     }
 
     if (!myJoinGuildRequest || !myJoinGuildRequest.length) {
       return (
-        <Button onClick={() => getSlotPrice(guild._id)}>Get Slot Price</Button>
+        <span onClick={() => getSlotPrice(guild._id)}>Get Slot Price</span>
       );
     }
 
@@ -141,29 +148,70 @@ const LeaderBoards = () => {
     switch (status) {
       case "accepted":
         return (
-          <Button onClick={() => getSlotPrice(guild._id)}>
-            Get Slot Price
-          </Button>
+          <span onClick={() => getSlotPrice(guild._id)}>Get Slot Price</span>
         );
       case "pending":
-        return <Button disabled>Join Request Pending</Button>;
+        return <span>Join Request Pending</span>;
       case "rejected":
-        return <Button disabled>Join Request Rejected</Button>;
+        return <span>Join Request Rejected</span>;
       default:
         return (
-          <Button onClick={() => createJoinGuildRequest(guild._id)}>
+          <span onClick={() => createJoinGuildRequest(guild._id)}>
             Requested
-          </Button>
+          </span>
         );
     }
   };
 
+  // const shardsGuildsColumns = [
+  //   {
+  //     title: "Rank",
+  //     dataIndex: "guild",
+  //     key: "rank",
+  //     render: (guild: GuildType, record: ShardsGuildType, index: number) => {
+  //       return guild?.metadata?.rank;
+  //     },
+  //   },
+  //   {
+  //     title: "Guild",
+  //     dataIndex: "guild",
+  //     key: "guild",
+  //     render: (guild: GuildType) => {
+  //       return guild.name;
+  //     },
+  //   },
+  //   {
+  //     title: "Score",
+  //     dataIndex: "score",
+  //     key: "score",
+  //   },
+  //   {
+  //     title: "Actions",
+  //     dataIndex: "guild",
+  //     key: "action",
+  //     render: (guild: GuildType, record: ShardsGuildType) => {
+  //       return (
+  //         <Space>
+  //           {renderBtnBuySlot(guild)}
+  //           <Button onClick={() => buyFraction(guild.address, 1, guild.chain)}>
+  //             Buy Fraction
+  //           </Button>
+  //           <Button onClick={() => sellFraction(guild.address, 1, guild.chain)}>
+  //             Sell Fraction
+  //           </Button>
+  //         </Space>
+  //       );
+  //     },
+  //   },
+  // ];
+
+  //TODO: new UI
   const shardsGuildsColumns = [
     {
       title: "Rank",
       dataIndex: "guild",
       key: "rank",
-      render: (guild: GuildType, record: ShardsGuildType, index: number) => {
+      render: (guild: GuildType) => {
         return guild?.metadata?.rank;
       },
     },
@@ -181,92 +229,63 @@ const LeaderBoards = () => {
       key: "score",
     },
     {
-      title: "Actions",
+      title: "",
       dataIndex: "guild",
       key: "action",
+      align: "right ",
       render: (guild: GuildType, record: ShardsGuildType) => {
         return (
-          <Space>
-            {renderBtnBuySlot(guild)}
-            <Button onClick={() => buyFraction(guild.address, 1, guild.chain)}>
-              Buy Fraction
-            </Button>
-            <Button onClick={() => sellFraction(guild.address, 1, guild.chain)}>
-              Sell Fraction
-            </Button>
-          </Space>
+          <Dropdown
+            menu={{
+              items: [
+                {
+                  key: "1",
+                  label: renderBtnBuySlot(guild),
+                  icon: <InfoCircleTwoTone style={{ fontSize: "0.875rem" }} />,
+                },
+                {
+                  key: "2",
+                  label: (
+                    <span
+                      onClick={() => buyFraction(guild.address, 1, guild.chain)}
+                    >
+                      Buy Fraction
+                    </span>
+                  ),
+                  icon: (
+                    <PlusCircleTwoTone
+                      twoToneColor="#52c41a"
+                      style={{ fontSize: "0.875rem" }}
+                    />
+                  ),
+                },
+                {
+                  key: "3",
+                  label: (
+                    <span
+                      onClick={() =>
+                        sellFraction(guild.address, 1, guild.chain)
+                      }
+                    >
+                      Sell Fraction
+                    </span>
+                  ),
+                  icon: (
+                    <MinusCircleTwoTone
+                      twoToneColor="#f81d22"
+                      style={{ fontSize: "0.875rem" }}
+                    />
+                  ),
+                },
+              ],
+            }}
+          >
+            <Button shape="circle" size="small" icon={<MoreOutlined />} />
+          </Dropdown>
         );
       },
     },
   ];
-
-  //TODO: new UI
-  // const shardsGuildsColumns = [
-  //     {
-  //         title: "Rank",
-  //         dataIndex: "guild",
-  //         key: "rank",
-  //         render: (guild: any, record: any, index: number) => {
-  //             return guild?.metadata?.rank;
-  //         },
-  //     },
-  //     {
-  //         title: "Guild",
-  //         dataIndex: "guild",
-  //         key: "guild",
-  //         render: (guild: any) => {
-  //             return guild.name;
-  //         },
-  //     },
-  //     {
-  //         title: "Score",
-  //         dataIndex: "score",
-  //         key: "score",
-  //     },
-  //     {
-  //         title: "",
-  //         dataIndex: "guild",
-  //         key: "action",
-  //         align: "right ",
-  //         render: (guild: any) => {
-  //             return (
-  //                 <Dropdown
-  //                     menu={{
-  //                         items: [
-  //                             {
-  //                                 key: "1",
-  //                                 label: <span onClick={() => getSlotPrice(guild._id)}>Get Slot Price</span>,
-  //                                 icon: <InfoCircleTwoTone style={{ fontSize: "0.875rem" }} />,
-  //                             },
-  //                             {
-  //                                 key: "2",
-  //                                 label: (
-  //                                     <span onClick={() => buyFraction(guild.address, 1, guild.chain)}>
-  //                                         Buy Fraction
-  //                                     </span>
-  //                                 ),
-  //                                 icon: <PlusCircleTwoTone twoToneColor="#52c41a" style={{ fontSize: "0.875rem" }} />,
-  //                             },
-  //                             {
-  //                                 key: "3",
-  //                                 label: (
-  //                                     <span onClick={() => sellFraction(guild.address, 1, guild.chain)}>
-  //                                         Sell Fraction
-  //                                     </span>
-  //                                 ),
-  //                                 icon: (
-  //                                     <MinusCircleTwoTone twoToneColor="#f81d22" style={{ fontSize: "0.875rem" }} />
-  //                                 ),
-  //                             },
-  //                         ],
-  //                     }}
-  //                 >
-  //                     <Button shape="circle" size="small" icon={<MoreOutlined />} />
-  //                 </Dropdown>
-  //             );
-  //         },
-  //     },
-  // ];
 
   return (
     <>
