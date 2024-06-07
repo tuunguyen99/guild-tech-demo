@@ -1,6 +1,6 @@
 "use client";
 import { useContext, useEffect, useState } from "react";
-import { HomeContext } from "../layout";
+import { HomeContext } from "../context";
 import {
   Avatar,
   Badge,
@@ -232,7 +232,6 @@ const LeaderBoards = () => {
       title: "",
       dataIndex: "guild",
       key: "action",
-      align: "right ",
       render: (guild: GuildType, record: ShardsGuildType) => {
         return (
           <Dropdown

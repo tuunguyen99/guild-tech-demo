@@ -1,6 +1,6 @@
 "use client";
 import { useContext, useEffect, useState } from "react";
-import { HomeContext } from "../layout";
+import { HomeContext } from "../context";
 import {
   Avatar,
   Badge,

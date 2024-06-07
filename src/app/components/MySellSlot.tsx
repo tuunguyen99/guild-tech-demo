@@ -1,6 +1,6 @@
 import { Button, Descriptions, InputNumber, Space } from "antd";
 import { useContext, useEffect, useState } from "react";
-import { HomeContext } from "../layout";
+import { HomeContext } from "../context";
 
 const MySellSlot = () => {
   const { shardsTechCore } = useContext(HomeContext);

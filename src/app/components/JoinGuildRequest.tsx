@@ -1,6 +1,6 @@
 import { Button, Empty, Space, Table } from "antd";
 import { useContext, useEffect, useState } from "react";
-import { HomeContext } from "../layout";
+import { HomeContext } from "../context";
 
 const JoinGuildRequest = () => {
   const { shardsTechCore } = useContext(HomeContext);

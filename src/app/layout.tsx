@@ -5,6 +5,7 @@ import StyledComponentsRegistry from "../../lib/AntdRegistry";
 import "./globals.scss";
 import { createContext, useLayoutEffect, useState } from "react";
 import { ShardsTechCore } from "@mirailabs-co/shards-tech";
+import { HomeContext } from "./context";
 const inter = Inter({ subsets: ["latin"] });
 
 // export const metadata: Metadata = {
@@ -12,8 +13,6 @@ const inter = Inter({ subsets: ["latin"] });
 //   description:
 //     "Trade Teams Like Tokens - Back your favorite teams, get exclusive access to their inner circle, and win a share of their earnings.",
 // };
-
-export const HomeContext = createContext<any | null>(null);
 
 export default function RootLayout({
   children,

@@ -1,7 +1,7 @@
 import { PictureFilled } from "@ant-design/icons";
 import { Avatar, Space, Typography } from "antd";
 import { useContext, useEffect, useState } from "react";
-import { HomeContext } from "../layout";
+import { HomeContext } from "../context";
 
 const MyHistory = () => {
   const { shardsTechCore } = useContext(HomeContext);

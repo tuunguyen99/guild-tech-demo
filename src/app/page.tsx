@@ -9,7 +9,7 @@ import MyGuild from "./components/MyGuild";
 import JoinGuildRequest from "./components/JoinGuildRequest";
 import MySellSlot from "./components/MySellSlot";
 import MyHistory from "./components/MyHistory";
-import { HomeContext } from "./layout";
+import { HomeContext } from "./context";
 
 export default function Home() {
   const { shardsTechCore } = useContext(HomeContext);
