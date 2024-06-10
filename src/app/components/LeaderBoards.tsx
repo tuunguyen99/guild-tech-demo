@@ -279,7 +279,10 @@ const LeaderBoards = () => {
               ],
             }}
           >
-            <Button shape="circle" size="small" icon={<MoreOutlined />} />
+            <div style={{ display: "flex" }}>
+              <div style={{ flex: 1 }} />
+              <Button shape="circle" size="small" icon={<MoreOutlined />} />
+            </div>
           </Dropdown>
         );
       },

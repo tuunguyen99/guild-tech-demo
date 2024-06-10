@@ -1,5 +1,5 @@
 "use client";
-import { Button, Space, Tabs, Typography } from "antd";
+import { Button, Space, Table, Tabs, Typography } from "antd";
 import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import useSessionStorageState from "use-session-storage-state";
@@ -120,6 +120,20 @@ export default function Home() {
       key: "join-guild-request",
       label: "Join Guild Request",
       children: <JoinGuildRequest />,
+    },
+    {
+      key: "user-share",
+      label: "User Fraction",
+      children: guildsUserHaveShare && (
+        <div>
+          <Table
+            columns={userHaveShareColumns}
+            dataSource={guildsUserHaveShare || []}
+            rowKey={(record) => record?.guild?._id}
+            pagination={false}
+          />
+        </div>
+      ),
     },
     {
       key: "3",
