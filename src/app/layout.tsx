@@ -6,6 +6,9 @@ import "./globals.scss";
 import { createContext, useLayoutEffect, useState } from "react";
 import { ShardsTechCore } from "@mirailabs-co/shards-tech";
 import { HomeContext } from "./context";
+import { Button, Input, Space } from "antd";
+import useSessionStorageState from "use-session-storage-state";
+import axios from "axios";
 const inter = Inter({ subsets: ["latin"] });
 
 // export const metadata: Metadata = {
@@ -21,6 +24,24 @@ export default function RootLayout({
 }) {
   const [shardsTechCore, setShardsTechCore] = useState<any | null>(null);
   const [shardsTechConnected, setShardsTechConnected] = useState<any>(null);
+  const [accessToken, setAccessToken] = useSessionStorageState<any>(
+    "accessToken",
+    {
+      defaultValue: process.env.NEXT_PUBLIC_GUILD_TECH_ACCESS_TOKEN,
+    }
+  );
+  const [deviceId, setDeviceId] = useState<any>("");
+
+  const submitDeviceId = async () => {
+    const endpoint = "http://103.109.37.199:3000/auth/loginGuest";
+    const data = {
+      deviceId: deviceId,
+    };
+    const response = await axios.post(endpoint, data);
+    setAccessToken(response.data.accessToken);
+    // reload page
+    window.location.reload();
+  };
 
   const initShardsTechCore = async () => {
     try {
@@ -29,7 +50,7 @@ export default function RootLayout({
         // env: "production",
       });
       const [shardsTechCore, shardsTechConnection] = await shardsTech.connect({
-        accessToken: process.env.NEXT_PUBLIC_GUILD_TECH_ACCESS_TOKEN || "",
+        accessToken,
       });
       await shardsTechCore.getGuildOfUser();
       setShardsTechCore(shardsTechCore);
@@ -52,7 +73,19 @@ export default function RootLayout({
     >
       <html lang="en">
         <body className={inter.className}>
-          <StyledComponentsRegistry>{children}</StyledComponentsRegistry>
+          <StyledComponentsRegistry>
+            <Space.Compact>
+              <Input
+                placeholder="deviceId"
+                value={deviceId}
+                onChange={(value) => setDeviceId(value?.target.value)}
+              />
+              <Button type="primary" onClick={() => submitDeviceId()}>
+                Login Another Account
+              </Button>
+            </Space.Compact>
+            {children}
+          </StyledComponentsRegistry>
         </body>
       </html>
     </HomeContext.Provider>
