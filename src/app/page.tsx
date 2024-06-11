@@ -1,8 +1,7 @@
 "use client";
-import { Button, Space, Table, Tabs, Typography } from "antd";
+import { Button, Input, Space, Table, Tabs, Typography } from "antd";
 import axios from "axios";
 import { useContext, useEffect, useState } from "react";
-import useSessionStorageState from "use-session-storage-state";
 import ShardsTabChat from "./shards-tech/_TabChat";
 import LeaderBoards from "./components/LeaderBoards";
 import MyGuild from "./components/MyGuild";
@@ -13,8 +12,6 @@ import { HomeContext } from "./context";
 
 export default function Home() {
   const { shardsTechCore } = useContext(HomeContext);
-
-  const [deviceId, setDeviceId] = useState<any>("");
 
   const [myShards, setMyShards] = useState<any>(null);
 
@@ -35,12 +32,6 @@ export default function Home() {
 
     setGuildsUserHaveShare(guildsUserHaveShare);
   };
-  const [accessToken, setAccessToken] = useSessionStorageState<any>(
-    "accessToken",
-    {
-      defaultValue: process.env.NEXT_PUBLIC_GUILD_TECH_ACCESS_TOKEN,
-    }
-  );
 
   const userHaveShareColumns = [
     {
@@ -159,25 +150,8 @@ export default function Home() {
     },
   ];
 
-  const submitDeviceId = async () => {
-    const endpoint = "http://103.109.37.199:3000/auth/loginGuest";
-    const data = {
-      deviceId: deviceId,
-    };
-    const response = await axios.post(endpoint, data);
-    setAccessToken(response.data.accessToken);
-    // reload page
-    window.location.reload();
-  };
-
   return (
     <main>
-      {/* <Space.Compact>
-            <Input placeholder="deviceId" value={deviceId} onChange={(value) => setDeviceId(value?.target.value)} />
-            <Button type="primary" onClick={() => submitDeviceId()}>
-                Login Another Account
-            </Button>
-        </Space.Compact> */}
       {/* <Button type="primary" onClick={() => setHandleFormVisible(true)} style={{ marginBottom: 20 }}>
             Add New Guild
         </Button> */}
