@@ -3,11 +3,10 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import StyledComponentsRegistry from "../../lib/AntdRegistry";
 import "./globals.scss";
-import { createContext, useLayoutEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import { ShardsTechCore } from "@mirailabs-co/shards-tech";
 import { HomeContext } from "./context";
 import { Button, Input, Space } from "antd";
-import useSessionStorageState from "use-session-storage-state";
 import axios from "axios";
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,12 +23,6 @@ export default function RootLayout({
 }) {
   const [shardsTechCore, setShardsTechCore] = useState<any | null>(null);
   const [shardsTechConnected, setShardsTechConnected] = useState<any>(null);
-  const [accessToken, setAccessToken] = useSessionStorageState<any>(
-    "accessToken",
-    {
-      defaultValue: process.env.NEXT_PUBLIC_GUILD_TECH_ACCESS_TOKEN,
-    }
-  );
   const [deviceId, setDeviceId] = useState<any>("");
 
   const submitDeviceId = async () => {
@@ -38,7 +31,7 @@ export default function RootLayout({
       deviceId: deviceId,
     };
     const response = await axios.post(endpoint, data);
-    setAccessToken(response.data.accessToken);
+    sessionStorage.setItem("accessToken", response.data.accessToken);
     // reload page
     window.location.reload();
   };
@@ -50,7 +43,10 @@ export default function RootLayout({
         // env: "production",
       });
       const [shardsTechCore, shardsTechConnection] = await shardsTech.connect({
-        accessToken,
+        accessToken:
+          sessionStorage.getItem("accessToken") ||
+          process.env.NEXT_PUBLIC_GUILD_TECH_ACCESS_TOKEN ||
+          "",
       });
       await shardsTechCore.getGuildOfUser();
       setShardsTechCore(shardsTechCore);
