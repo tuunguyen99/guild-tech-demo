@@ -9,6 +9,7 @@ import JoinGuildRequest from "./components/JoinGuildRequest";
 import MySellSlot from "./components/MySellSlot";
 import MyHistory from "./components/MyHistory";
 import { HomeContext } from "./context";
+import HandleForm from "./shards-tech/_Form";
 
 export default function Home() {
   const { shardsTechCore } = useContext(HomeContext);
@@ -20,6 +21,7 @@ export default function Home() {
   const [transactionHistoryOfUser, setTransactionHistoryOfUser] =
     useState<any>(null);
   const [guildsUserHaveShare, setGuildsUserHaveShare] = useState<any>(null);
+  const [handleFormVisible, setHandleFormVisible] = useState<boolean>(false);
 
   const connectShardsTech = async () => {
     const data = await shardsTechCore.getMyFractions();
@@ -152,11 +154,20 @@ export default function Home() {
 
   return (
     <main>
-      {/* <Button type="primary" onClick={() => setHandleFormVisible(true)} style={{ marginBottom: 20 }}>
-            Add New Guild
-        </Button> */}
+      <Button
+        type="primary"
+        onClick={() => setHandleFormVisible(true)}
+        style={{ marginBottom: 16, marginTop: 16 }}
+      >
+        Add New Guild
+      </Button>
       {/* <Tabs defaultActiveKey="1" items={items} /> */}
       <Tabs defaultActiveKey="1" items={shardItems} />
+      <HandleForm
+        openHandleForm={handleFormVisible}
+        setOpenHandleForm={setHandleFormVisible}
+        shardsTechCore={shardsTechCore}
+      />
     </main>
   );
 }
