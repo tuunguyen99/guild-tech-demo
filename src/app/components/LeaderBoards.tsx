@@ -131,9 +131,18 @@ const LeaderBoards = () => {
       return <span>Already Join Guild</span>;
     }
 
-    if (!myJoinGuildRequest || !myJoinGuildRequest.length) {
+    if (
+      shardsTechCore.gameConfig?.memberGuildConfig?.requireJoinGuildRequest ===
+      "off"
+    ) {
       return (
         <span onClick={() => getSlotPrice(guild._id)}>Get Slot Price</span>
+      );
+    }
+
+    if (!myJoinGuildRequest || !myJoinGuildRequest.length) {
+      return (
+        <span onClick={() => createJoinGuildRequest(guild._id)}>Requested</span>
       );
     }
 
@@ -142,6 +151,7 @@ const LeaderBoards = () => {
     for (let item of myJoinGuildRequest) {
       if (item.guild === guild._id) {
         status = item?.status;
+        break;
       }
     }
 
@@ -153,7 +163,11 @@ const LeaderBoards = () => {
       case "pending":
         return <span>Join Request Pending</span>;
       case "rejected":
-        return <span>Join Request Rejected</span>;
+        return (
+          <span onClick={() => createJoinGuildRequest(guild._id)}>
+            Requested
+          </span>
+        );
       default:
         return (
           <span onClick={() => createJoinGuildRequest(guild._id)}>
