@@ -1,5 +1,5 @@
 "use client";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { HomeContext } from "../context";
 import {
   Avatar,
@@ -21,17 +21,20 @@ import {
 import {
   CrownTwoTone,
   FireTwoTone,
+  FormOutlined,
   MoreOutlined,
   PictureFilled,
   TagTwoTone,
   UserOutlined,
 } from "@ant-design/icons";
-import { shortAddress } from "../app-utils";
+import { parseGuildConfig, shortAddress } from "../app-utils";
 import { TransactionGuild } from "../app-constants/type";
 import HandleForm from "../shards-tech/_Form";
+import FormUpdateGuild from "../shards-tech/FormUpdateGuild";
 
 const MyGuild = () => {
   const { shardsTechCore } = useContext(HomeContext);
+  console.log("shardsTechCore >>>", shardsTechCore);
   const [transactionHistoryOfGuild, setTransactionHistoryOfGuild] =
     useState<TransactionGuild[]>();
   const [handleFormVisible, setHandleFormVisible] = useState<boolean>(false);
@@ -42,6 +45,22 @@ const MyGuild = () => {
   const [openChangeOwnerModal, setOpenChangeOwnerModal] =
     useState<boolean>(false);
   const [newOwner, setNewOwner] = useState<any>(null);
+  const [openUpdateForm, setOpenUpdateForm] = useState<boolean>(false);
+
+  const earningDistribution = useMemo(() => {
+    let result = parseGuildConfig(
+      shardsTechCore?.userGuild?.rewardShareForMembers,
+      shardsTechCore?.userGuild?.guildOwnerShare
+    );
+
+    result = {
+      sharePercent: Math.round(result.sharePercent * 100),
+      guildOwnerPercent: Math.round(result.guildOwnerPercent * 100),
+      memberPercent: Math.round(result.memberPercent * 100),
+    };
+
+    return result;
+  }, [shardsTechCore]);
 
   const getTransactionHistoryOfGuild = async () => {
     try {
@@ -190,9 +209,21 @@ const MyGuild = () => {
           className="mb-4"
           title="Earning Distribution"
           items={[
-            { key: "1", label: "Guild Master", children: "20%" },
-            { key: "2", label: "Seat Owners", children: "60%" },
-            { key: "3", label: "Fraction Owners", children: "20%" },
+            {
+              key: "1",
+              label: "Guild Master",
+              children: `${earningDistribution.guildOwnerPercent}%`,
+            },
+            {
+              key: "2",
+              label: "Seat Owners",
+              children: `${earningDistribution.memberPercent}%`,
+            },
+            {
+              key: "3",
+              label: "Fraction Owners",
+              children: `${earningDistribution.sharePercent}%`,
+            },
           ]}
         ></Descriptions>
       </div>
@@ -217,6 +248,14 @@ const MyGuild = () => {
           icon={<CrownTwoTone />}
           onClick={() => setOpenChangeOwnerModal(true)}
         />
+        {shardsTechCore?.userGuild?.owner?._id ===
+        shardsTechCore?.userInfo?._id ? (
+          <FloatButton
+            tooltip={<div>Update Guild</div>}
+            icon={<FormOutlined style={{ color: "#52c41a" }} />}
+            onClick={() => setOpenUpdateForm(true)}
+          />
+        ) : null}
       </FloatButton.Group>
       <Tabs
         defaultActiveKey="1"
@@ -318,6 +357,18 @@ const MyGuild = () => {
           </Form.Item>
         </Form>
       </Modal>
+      <FormUpdateGuild
+        openHandleForm={openUpdateForm}
+        setOpenHandleForm={setOpenUpdateForm}
+        shardsTechCore={shardsTechCore}
+        data={{
+          guildName: shardsTechCore.userGuild.name,
+          slotPrice: shardsTechCore.userGuild?.slotPrice,
+          guildMaster: earningDistribution.guildOwnerPercent,
+          seatOwners: earningDistribution.memberPercent,
+          fractionOwners: earningDistribution.sharePercent,
+        }}
+      />
     </>
   );
 };

@@ -1,5 +1,5 @@
 "use client";
-import { Button, Input, Space, Table, Tabs, Typography } from "antd";
+import { Button, Input, Space, Spin, Table, Tabs, Typography } from "antd";
 import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import ShardsTabChat from "./shards-tech/_TabChat";
@@ -23,16 +23,25 @@ export default function Home() {
   const [guildsUserHaveShare, setGuildsUserHaveShare] = useState<any>(null);
   const [handleFormVisible, setHandleFormVisible] = useState<boolean>(false);
 
+  const [loading, setLoading] = useState<boolean>(true);
+
   const connectShardsTech = async () => {
-    const data = await shardsTechCore.getMyFractions();
-    setMyShards(data);
+    try {
+      setLoading(true);
+      const data = await shardsTechCore.getMyFractions();
+      setMyShards(data);
 
-    const userOnlines = await shardsTechCore.getUserOnlineInGuild();
-    setUserOnlinesShards(userOnlines);
+      const userOnlines = await shardsTechCore.getUserOnlineInGuild();
+      setUserOnlinesShards(userOnlines);
 
-    const guildsUserHaveShare = await shardsTechCore.getMyFractions();
+      const guildsUserHaveShare = await shardsTechCore.getMyFractions();
 
-    setGuildsUserHaveShare(guildsUserHaveShare);
+      setGuildsUserHaveShare(guildsUserHaveShare);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const userHaveShareColumns = [
@@ -152,6 +161,14 @@ export default function Home() {
     },
   ];
 
+  if (
+    shardsTechCore &&
+    shardsTechCore.gameConfig?.memberGuildConfig?.requireJoinGuildRequest ===
+      "off"
+  ) {
+    shardItems.splice(2, 1);
+  }
+
   return (
     <main>
       <Button
@@ -161,8 +178,20 @@ export default function Home() {
       >
         Add New Guild
       </Button>
-      {/* <Tabs defaultActiveKey="1" items={items} /> */}
-      <Tabs defaultActiveKey="1" items={shardItems} />
+      {loading ? (
+        <div
+          style={{
+            height: "calc(100vh - 96px)",
+            display: "flex",
+            alignItems: "center",
+            justifyItems: "center",
+          }}
+        >
+          <Spin size="large" style={{ flex: 1 }} />
+        </div>
+      ) : (
+        <Tabs defaultActiveKey="1" items={shardItems} />
+      )}
       <HandleForm
         openHandleForm={handleFormVisible}
         setOpenHandleForm={setHandleFormVisible}

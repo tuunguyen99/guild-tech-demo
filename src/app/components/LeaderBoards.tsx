@@ -71,6 +71,11 @@ const LeaderBoards = () => {
       console.log("ShardsTech not connected");
       return;
     }
+
+    if (!selectedShardsLeaderBoard) {
+      return;
+    }
+
     const shards = await shardsTechCore.getGuildScores({
       leaderBoardId: selectedShardsLeaderBoard,
       page: 1,
