@@ -77,3 +77,11 @@ export type TransactionGuild = {
   createdAt: string;
   __v: number;
 };
+
+export type UpdateGuildType = {
+  guildName: string;
+  slotPrice: number;
+  guildMaster: number;
+  seatOwners: number;
+  fractionOwners: number;
+};

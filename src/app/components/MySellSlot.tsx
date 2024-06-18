@@ -1,4 +1,4 @@
-import { Button, Descriptions, InputNumber, Space } from "antd";
+import { Button, Descriptions, Empty, InputNumber, Space } from "antd";
 import { useContext, useEffect, useState } from "react";
 import { HomeContext } from "../context";
 
@@ -36,6 +36,10 @@ const MySellSlot = () => {
     const mySellSlot = await shardsTechCore.getMySellMemberSlot();
     setMySellSlot(mySellSlot);
   };
+
+  if (!mySellSlot || !mySellSlot?.length) {
+    return <Empty />;
+  }
 
   return (
     <div className="px-4">
