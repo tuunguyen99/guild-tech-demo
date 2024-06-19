@@ -147,7 +147,9 @@ const LeaderBoards = () => {
 
     if (!myJoinGuildRequest || !myJoinGuildRequest.length) {
       return (
-        <span onClick={() => createJoinGuildRequest(guild._id)}>Requested</span>
+        <span onClick={() => createJoinGuildRequest(guild._id)}>
+          Join Guild
+        </span>
       );
     }
 
@@ -156,7 +158,6 @@ const LeaderBoards = () => {
     for (let item of myJoinGuildRequest) {
       if (item.guild === guild._id) {
         status = item?.status;
-        break;
       }
     }
 
@@ -170,13 +171,13 @@ const LeaderBoards = () => {
       case "rejected":
         return (
           <span onClick={() => createJoinGuildRequest(guild._id)}>
-            Requested
+            Join Guild
           </span>
         );
       default:
         return (
           <span onClick={() => createJoinGuildRequest(guild._id)}>
-            Requested
+            Join Guild
           </span>
         );
     }

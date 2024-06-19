@@ -60,7 +60,7 @@ const MyGuild = () => {
     };
 
     return result;
-  }, [shardsTechCore]);
+  }, [shardsTechCore?.userGuild]);
 
   const getTransactionHistoryOfGuild = async () => {
     try {
