@@ -1,4 +1,4 @@
-import { Button, Empty, Space, Table } from "antd";
+import { Button, Empty, Space, Table, Tabs } from "antd";
 import { useContext, useEffect, useState } from "react";
 import { HomeContext } from "../context";
 
@@ -7,17 +7,26 @@ const JoinGuildRequest = () => {
 
   const [joinGuildRequestOfGuild, setJoinGuildRequestOfGuild] =
     useState<any[]>();
-  const [isOwner, setIsOwner] = useState<any>(false);
+  const [listInvitation, setListInvitation] = useState<any[]>([]);
 
   const getListResquest = async () => {
     try {
-      const joinGuildRequestOfGuild = shardsTechCore?.userGuild?._id
-        ? await shardsTechCore.getJoinGuildRequest(shardsTechCore.userGuild._id)
-        : [];
-      setJoinGuildRequestOfGuild(joinGuildRequestOfGuild);
-      const isOwner =
-        shardsTechCore?.userGuild?.owner?._id === shardsTechCore?.userInfo?._id;
-      setIsOwner(isOwner);
+      if (!shardsTechCore?.userGuild) {
+        const res = await shardsTechCore?.getJoinGuildOfUser();
+        setListInvitation(
+          res?.filter((item: any) => item?.metadata?.type === "invite")
+        );
+        setJoinGuildRequestOfGuild(
+          res?.filter((item: any) => item?.metadata?.type !== "invite")
+        );
+      } else {
+        const joinGuildRequestOfGuild = shardsTechCore?.userGuild?._id
+          ? await shardsTechCore.getJoinGuildRequest(
+              shardsTechCore.userGuild._id
+            )
+          : [];
+        setJoinGuildRequestOfGuild(joinGuildRequestOfGuild);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -50,7 +59,14 @@ const JoinGuildRequest = () => {
       render: (status: any, record: any) => {
         const isAccepted = status === "accepted";
         const isRejected = status === "rejected";
-        const isPending = status === "pending";
+
+        if (
+          !shardsTechCore?.userGuild ||
+          shardsTechCore?.userGuild?.owner?._id !==
+            shardsTechCore?.userInfo?._id
+        ) {
+          return null;
+        }
         if (isAccepted) {
           return <Button disabled>Accepted</Button>;
         }
@@ -85,19 +101,74 @@ const JoinGuildRequest = () => {
     },
   ];
 
-  if (!isOwner || !joinGuildRequestOfGuild || !joinGuildRequestOfGuild.length) {
-    return <Empty />;
-  }
+  const listInvitationColumns = [
+    {
+      title: "User",
+      dataIndex: "userId",
+      key: "userId",
+      //   render: (user: any) => {
+      //     return user && user.userId;
+      //   },
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+    },
+  ];
 
-  return (
-    <div>
+  if (
+    shardsTechCore?.userGuild &&
+    shardsTechCore.userGuild?.owner?._id === shardsTechCore?.userInfo?._id
+  ) {
+    if (!joinGuildRequestOfGuild?.length) {
+      return <Empty />;
+    }
+    return (
       <Table
         columns={joinGuildRequestColumns}
         dataSource={joinGuildRequestOfGuild || []}
         rowKey={(record) => record?._id}
         pagination={false}
       />
-    </div>
+    );
+  }
+
+  return (
+    <Tabs
+      defaultActiveKey="1"
+      type="card"
+      items={[
+        {
+          key: "1",
+          label: "Request",
+          children: joinGuildRequestOfGuild?.length ? (
+            <Table
+              columns={joinGuildRequestColumns}
+              dataSource={joinGuildRequestOfGuild || []}
+              rowKey={(record) => record?._id}
+              pagination={false}
+            />
+          ) : (
+            <Empty />
+          ),
+        },
+        {
+          key: "2",
+          label: "Invited",
+          children: listInvitation?.length ? (
+            <Table
+              columns={listInvitationColumns}
+              dataSource={listInvitation || []}
+              rowKey={(record) => record?._id}
+              pagination={false}
+            />
+          ) : (
+            <Empty />
+          ),
+        },
+      ]}
+    />
   );
 };
 

@@ -25,12 +25,14 @@ import {
   MoreOutlined,
   PictureFilled,
   TagTwoTone,
+  UserAddOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import { parseGuildConfig, shortAddress } from "../app-utils";
 import { TransactionGuild } from "../app-constants/type";
 import HandleForm from "../shards-tech/_Form";
 import FormUpdateGuild from "../shards-tech/FormUpdateGuild";
+import ModalInvite from "../shards-tech/ModalInvite";
 
 const MyGuild = () => {
   const { shardsTechCore } = useContext(HomeContext);
@@ -46,6 +48,7 @@ const MyGuild = () => {
     useState<boolean>(false);
   const [newOwner, setNewOwner] = useState<any>(null);
   const [openUpdateForm, setOpenUpdateForm] = useState<boolean>(false);
+  const [openModalInvite, setOpenModalInvite] = useState<boolean>(false);
 
   const earningDistribution = useMemo(() => {
     let result = parseGuildConfig(
@@ -166,36 +169,54 @@ const MyGuild = () => {
   return (
     <>
       <div className="px-4">
-        <Space align="center" size={"middle"} className="mb-4">
-          {shardsTechCore.userGuild.metadata?.avatar ? (
-            <Avatar
-              src={shardsTechCore.userGuild.metadata?.avatar}
-              size={64}
-              shape="square"
-            />
-          ) : (
-            <Avatar icon={<PictureFilled />} size={64} shape="square" />
-          )}
-          <Space direction="vertical" style={{ gap: "0.25rem" }}>
-            <Typography.Title className="my-0" level={4}>
-              {shardsTechCore.userGuild.name}
-            </Typography.Title>
-            <Space>
-              <Badge
-                count={`Lv: ${
-                  shardsTechCore.userGuild.metadata?.level || "--"
-                }`}
-                color="#1677ff"
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <Space align="center" size={"middle"} className="mb-4">
+            {shardsTechCore.userGuild.metadata?.avatar ? (
+              <Avatar
+                src={shardsTechCore.userGuild.metadata?.avatar}
+                size={64}
+                shape="square"
               />
-              <Badge
-                count={`Rank: ${
-                  shardsTechCore.userGuild.metadata?.rank || "--"
-                }`}
-                color="#52c41a"
-              />
+            ) : (
+              <Avatar icon={<PictureFilled />} size={64} shape="square" />
+            )}
+            <Space direction="vertical" style={{ gap: "0.25rem" }}>
+              <Typography.Title className="my-0" level={4}>
+                {shardsTechCore.userGuild.name}
+              </Typography.Title>
+              <Space>
+                <Badge
+                  count={`Lv: ${
+                    shardsTechCore.userGuild.metadata?.level || "--"
+                  }`}
+                  color="#1677ff"
+                />
+                <Badge
+                  count={`Rank: ${
+                    shardsTechCore.userGuild.metadata?.rank || "--"
+                  }`}
+                  color="#52c41a"
+                />
+              </Space>
             </Space>
           </Space>
-        </Space>
+          {shardsTechCore?.userGuild?.owner?._id ===
+          shardsTechCore?.userInfo?._id ? (
+            <Button
+              type="default"
+              icon={<UserAddOutlined />}
+              onClick={() => setOpenModalInvite(true)}
+            >
+              Invite Member
+            </Button>
+          ) : null}
+        </div>
         <Typography.Paragraph type="secondary">
           {shardsTechCore.userGuild.metadata?.description ? (
             shardsTechCore.userGuild.metadata?.description
@@ -243,18 +264,20 @@ const MyGuild = () => {
           icon={<TagTwoTone twoToneColor={"#f81d22"} />}
           onClick={() => setOpenSellSlotModal(true)}
         />
-        <FloatButton
-          tooltip={<div>Change Owner</div>}
-          icon={<CrownTwoTone />}
-          onClick={() => setOpenChangeOwnerModal(true)}
-        />
         {shardsTechCore?.userGuild?.owner?._id ===
         shardsTechCore?.userInfo?._id ? (
-          <FloatButton
-            tooltip={<div>Update Guild</div>}
-            icon={<FormOutlined style={{ color: "#52c41a" }} />}
-            onClick={() => setOpenUpdateForm(true)}
-          />
+          <>
+            <FloatButton
+              tooltip={<div>Change Owner</div>}
+              icon={<CrownTwoTone />}
+              onClick={() => setOpenChangeOwnerModal(true)}
+            />
+            <FloatButton
+              tooltip={<div>Update Guild</div>}
+              icon={<FormOutlined style={{ color: "#52c41a" }} />}
+              onClick={() => setOpenUpdateForm(true)}
+            />
+          </>
         ) : null}
       </FloatButton.Group>
       <Tabs
@@ -367,7 +390,14 @@ const MyGuild = () => {
           guildMaster: earningDistribution.guildOwnerPercent,
           seatOwners: earningDistribution.memberPercent,
           fractionOwners: earningDistribution.sharePercent,
+          requireJoinGuildRequest:
+            shardsTechCore.userGuild?.requireJoinGuildRequest,
         }}
+      />
+      <ModalInvite
+        openHandleForm={openModalInvite}
+        setOpenHandleForm={setOpenModalInvite}
+        shardsTechCore={shardsTechCore}
       />
     </>
   );

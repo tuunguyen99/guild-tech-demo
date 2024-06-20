@@ -318,10 +318,10 @@
   resolved "https://registry.npmjs.org/@humanwhocodes/object-schema/-/object-schema-2.0.2.tgz"
   integrity sha512-6EwiSjwWYP7pTckG6I5eyFANjPhmPjUX9JRLUSfNPC7FX7zK9gyZAfUEaECL6ALTpGX5AjnBq3C9XmVWPitNpw==
 
-"@mirailabs-co/shards-tech@1.1.8":
-  version "1.1.8"
-  resolved "https://registry.npmjs.org/@mirailabs-co/shards-tech/-/shards-tech-1.1.8.tgz"
-  integrity sha512-alDjdgyUhy13ASOvhAuPvvqSNS6q4J9kSJTF7YhzBR63hR2sJmSWjMjOJSIDKUh0Pth+UA8auYQXFewaMLzJGQ==
+"@mirailabs-co/shards-tech@1.1.10":
+  version "1.1.10"
+  resolved "https://registry.yarnpkg.com/@mirailabs-co/shards-tech/-/shards-tech-1.1.10.tgz#9ee2deffa42de2d40a900c870457a1372c6e7038"
+  integrity sha512-V5E0xaXB+pMZqZH7/VLfdRNGc1dNfTnNfzKyYid/2wVXVq/Y2tpI6RD9vZ0hFnNLjgJ6rXCzBe+qrQC+Um2Fcw==
   dependencies:
     eventemitter3 "^5.0.1"
     jwt-decode "^3.1.2"
