@@ -84,4 +84,5 @@ export type UpdateGuildType = {
   guildMaster: number;
   seatOwners: number;
   fractionOwners: number;
+  requireJoinGuildRequest: boolean;
 };

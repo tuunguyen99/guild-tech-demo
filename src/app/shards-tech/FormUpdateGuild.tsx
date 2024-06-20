@@ -1,7 +1,17 @@
-import { Button, Form, Input, Modal, Row, Select, message } from "antd";
+import {
+  Button,
+  Checkbox,
+  Form,
+  Input,
+  Modal,
+  Row,
+  Select,
+  message,
+} from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { UpdateGuildType } from "../app-constants/type";
 import { calcGuildConfig } from "../app-utils";
+import moment from "moment";
 
 interface FormUpdateGuildProps {
   openHandleForm: boolean;
@@ -30,6 +40,7 @@ const FormUpdateGuild = ({
       name: false,
       slotPrice: false,
       earningDistribution: false,
+      requireJoinGuildRequest: false,
     };
 
     const allowUpdateFields: string[] =
@@ -47,6 +58,7 @@ const FormUpdateGuild = ({
         name: true,
         slotPrice: true,
         earningDistribution: true,
+        requireJoinGuildRequest: true,
       });
     }
 
@@ -72,6 +84,7 @@ const FormUpdateGuild = ({
         slotPrice: Number(values.slotPrice),
         rewardShareForMembers: guildConfig.rewardShareForMember,
         guildOwnerShare: guildConfig.guildOwnerShare,
+        requireJoinGuildRequest: values.requireJoinGuildRequest,
       };
       const res = await shardsTechCore.userUpdateGuild(
         shardsTechCore?.userGuild?._id,
@@ -91,7 +104,6 @@ const FormUpdateGuild = ({
       await shardsTechCore.getGuildOfUser();
       form.setFieldsValue(data);
       setOpenHandleForm(false);
-      // onClose();
     } catch (error) {
       console.log(error);
       messageApi.open({
@@ -129,117 +141,144 @@ const FormUpdateGuild = ({
         title={"Update Guild"}
         onOk={() => form.submit()}
         width={620}
+        okText={"Update Guild"}
       >
-        {isCanUpdate.name ? (
-          <Form.Item
-            label="Guild Name"
-            name="guildName"
-            rules={[{ required: true, message: "Please input Guild Name!" }]}
-          >
-            <Input />
-          </Form.Item>
-        ) : null}
+        <Form.Item
+          label="Guild Name"
+          name="guildName"
+          rules={[{ required: true, message: "Please input Guild Name!" }]}
+        >
+          <Input disabled={!isCanUpdate.name} />
+        </Form.Item>
 
-        {isCanUpdate.slotPrice ? (
-          <Form.Item
-            label="Slot Price"
-            name="slotPrice"
-            rules={[
-              { required: true, message: "Please input Slot Price!" },
-              {
-                pattern: /[+-]?([0-9]*[.])?[0-9]+/,
-                message: "Please input valid number!",
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-        ) : null}
-
-        {isCanUpdate.earningDistribution ? (
-          <>
-            <Form.Item
-              label="Guild Master"
-              name="guildMaster"
-              rules={[
-                {
-                  required: true,
-                  message: "Please input guild master!",
-                },
-                {
-                  type: "number",
-                  max: 100,
-                  message: "Guild Master must be less than or equal to 100%",
-                  transform: (value) => Number(value), // Ensure the value is transformed to a number
-                },
-                {
-                  type: "number",
-                  min: 0,
-                  message: "Guild Master must be greater than or equal to 0",
-                  transform: (value) => Number(value), // Ensure the value is transformed to a number
-                },
-              ]}
-            >
-              <Input
-                type="Number"
-                suffix={<div>%</div>}
-                onChange={handleMyFieldChange}
-              />
-            </Form.Item>
-            <Form.Item
-              label="Seat Owners"
-              name="seatOwners"
-              rules={[
-                {
-                  required: true,
-                  message: "Please input!",
-                },
-                {
-                  type: "number",
-                  max: 100,
-                  message: "Seat Owners must be less than or equal to 100%",
-                  transform: (value) => Number(value), // Ensure the value is transformed to a number
-                },
-                {
-                  type: "number",
-                  min: 0,
-                  message: "Seat Owners must be greater than or equal to 0",
-                  transform: (value) => Number(value), // Ensure the value is transformed to a number
-                },
-              ]}
-            >
-              <Input
-                type="Number"
-                suffix={<div>%</div>}
-                onChange={handleMyFieldChange}
-              />
-            </Form.Item>
-            <Form.Item
-              name="fractionOwners"
-              label="Fraction Owners"
-              rules={[
-                {
-                  required: true,
-                  message: "Please input!",
-                },
-                {
-                  type: "number",
-                  max: 100,
-                  message: "Fraction Owners must be less than or equal to 100%",
-                  transform: (value) => Number(value), // Ensure the value is transformed to a number
-                },
-                {
-                  type: "number",
-                  min: 0,
-                  message: "Fraction Owners must be greater than or equal to 0",
-                  transform: (value) => Number(value), // Ensure the value is transformed to a number
-                },
-              ]}
-            >
-              <Input type="Number" disabled suffix={<div>%</div>} />
-            </Form.Item>
-          </>
-        ) : null}
+        <Form.Item
+          label="Slot Price"
+          name="slotPrice"
+          rules={[
+            { required: true, message: "Please input Slot Price!" },
+            {
+              pattern: /[+-]?([0-9]*[.])?[0-9]+/,
+              message: "Please input valid number!",
+            },
+          ]}
+        >
+          <Input disabled={!isCanUpdate.slotPrice} />
+        </Form.Item>
+        <Form.Item
+          label="Guild Master"
+          name="guildMaster"
+          rules={[
+            {
+              required: true,
+              message: "Please input guild master!",
+            },
+            {
+              type: "number",
+              max: 100,
+              message: "Guild Master must be less than or equal to 100%",
+              transform: (value) => Number(value), // Ensure the value is transformed to a number
+            },
+            {
+              type: "number",
+              min: 0,
+              message: "Guild Master must be greater than or equal to 0",
+              transform: (value) => Number(value), // Ensure the value is transformed to a number
+            },
+          ]}
+        >
+          <Input
+            type="Number"
+            suffix={<div>%</div>}
+            onChange={handleMyFieldChange}
+            disabled={!isCanUpdate.earningDistribution}
+          />
+        </Form.Item>
+        <Form.Item
+          label="Seat Owners"
+          name="seatOwners"
+          rules={[
+            {
+              required: true,
+              message: "Please input!",
+            },
+            {
+              type: "number",
+              max: 100,
+              message: "Seat Owners must be less than or equal to 100%",
+              transform: (value) => Number(value), // Ensure the value is transformed to a number
+            },
+            {
+              type: "number",
+              min: 0,
+              message: "Seat Owners must be greater than or equal to 0",
+              transform: (value) => Number(value), // Ensure the value is transformed to a number
+            },
+          ]}
+        >
+          <Input
+            type="Number"
+            suffix={<div>%</div>}
+            onChange={handleMyFieldChange}
+            disabled={!isCanUpdate.earningDistribution}
+          />
+        </Form.Item>
+        <Form.Item
+          name="fractionOwners"
+          label="Fraction Owners"
+          rules={[
+            {
+              required: true,
+              message: "Please input!",
+            },
+            {
+              type: "number",
+              max: 100,
+              message: "Fraction Owners must be less than or equal to 100%",
+              transform: (value) => Number(value), // Ensure the value is transformed to a number
+            },
+            {
+              type: "number",
+              min: 0,
+              message: "Fraction Owners must be greater than or equal to 0",
+              transform: (value) => Number(value), // Ensure the value is transformed to a number
+            },
+          ]}
+        >
+          <Input type="Number" disabled suffix={<div>%</div>} />
+        </Form.Item>
+        <Form.Item
+          label="Require Join Guild Request"
+          name="requireJoinGuildRequest"
+          valuePropName="checked"
+        >
+          <Checkbox disabled={!isCanUpdate.requireJoinGuildRequest} />
+        </Form.Item>
+        <div>
+          Update time:{" "}
+          <p style={{ fontWeight: 600, display: "inline-block", margin: 0 }}>
+            {shardsTechCore?.userGuild?.numberAllowUpdate > 0
+              ? shardsTechCore?.userGuild?.numberAllowUpdate
+              : 0}
+          </p>
+        </div>
+        <div style={{ display: "flex", paddingTop: "16px" }}>
+          <div style={{ flex: 1 }}>
+            Start Date:{" "}
+            <p style={{ fontWeight: 600, display: "inline-block", margin: 0 }}>
+              {moment(
+                shardsTechCore?.userGuild?.startAllowUpdateTimestamp * 1000
+              ).format("DD/MM/YYYY LT")}
+            </p>
+          </div>
+          <div style={{ flex: 1 }}>
+            End Date:{" "}
+            <p style={{ fontWeight: 600, display: "inline-block", margin: 0 }}>
+              {moment(
+                shardsTechCore?.userGuild?.endAllowUpdateTimestamp * 1000
+              ).format("DD/MM/YYYY LT")}
+            </p>
+          </div>
+        </div>
       </Modal>
     </Form>
   );

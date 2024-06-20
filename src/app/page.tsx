@@ -163,9 +163,14 @@ export default function Home() {
 
   if (
     shardsTechCore &&
+    !shardsTechCore?.userGuild?.hasOwnProperty("requireJoinGuildRequest") &&
     shardsTechCore.gameConfig?.memberGuildConfig?.requireJoinGuildRequest ===
       "off"
   ) {
+    shardItems.splice(2, 1);
+  }
+
+  if (shardsTechCore?.userGuild?.requireJoinGuildRequest === false) {
     shardItems.splice(2, 1);
   }
 
