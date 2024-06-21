@@ -34,6 +34,8 @@ import HandleForm from "../shards-tech/_Form";
 import FormUpdateGuild from "../shards-tech/FormUpdateGuild";
 import ModalInvite from "../shards-tech/ModalInvite";
 
+const { Paragraph } = Typography;
+
 const MyGuild = () => {
   const { shardsTechCore } = useContext(HomeContext);
   console.log("shardsTechCore >>>", shardsTechCore);
@@ -115,7 +117,11 @@ const MyGuild = () => {
       dataIndex: "address",
       key: "address",
       render: (address: string) => {
-        return shortAddress(address);
+        return (
+          <Paragraph style={{ margin: 0 }} copyable={{ text: address }}>
+            {shortAddress(address) || "--"}
+          </Paragraph>
+        );
       },
     },
     {
@@ -123,7 +129,11 @@ const MyGuild = () => {
       dataIndex: "userId",
       key: "userId",
       render: (uId: string) => {
-        return uId.slice(0, 4) + "..." + uId.slice(-4);
+        return (
+          <Paragraph style={{ margin: 0 }} copyable={{ text: uId }}>
+            {shortAddress(uId) || "--"}
+          </Paragraph>
+        );
       },
     },
     {
@@ -131,7 +141,11 @@ const MyGuild = () => {
       dataIndex: "_id",
       key: "_id",
       render: (id: string) => {
-        return id.slice(0, 4) + "..." + id.slice(-4);
+        return (
+          <Paragraph style={{ margin: 0 }} copyable={{ text: id }}>
+            {shortAddress(id) || "--"}
+          </Paragraph>
+        );
       },
     },
   ];
@@ -357,10 +371,10 @@ const MyGuild = () => {
         onCancel={() => setOpenChangeOwnerModal(false)}
       >
         <Form layout="vertical" autoComplete="off">
-          <Form.Item name="name" label="User ID">
+          <Form.Item name="name" label="Shards ID">
             <Input
               size="large"
-              placeholder="enter user id"
+              placeholder="Enter Shards ID"
               onChange={(e) => setNewOwner(e.target.value)}
               value={newOwner}
             />

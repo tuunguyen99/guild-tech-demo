@@ -9,16 +9,43 @@ const UserInfo = ({ shardsTechCore }: { shardsTechCore: any }) => {
     {
       key: "address",
       label: (
-        <Paragraph copyable style={{ margin: 0 }}>
-          {shortAddress(shardsTechCore?.userInfo?.address)}
+        <Paragraph
+          copyable={{ text: shardsTechCore?.userInfo?.address }}
+          style={{ margin: 0 }}
+          ellipsis
+        >
+          Address:{" "}
+          <span style={{ fontWeight: 600 }}>
+            {shortAddress(shardsTechCore?.userInfo?.address) || "--"}
+          </span>
         </Paragraph>
       ),
     },
     {
       key: "userId",
       label: (
-        <Paragraph copyable style={{ margin: 0 }}>
-          {shardsTechCore?.userInfo?.userId}
+        <Paragraph
+          style={{ margin: 0 }}
+          copyable={{ text: shardsTechCore?.userInfo?.userId }}
+        >
+          User ID:{" "}
+          <span style={{ fontWeight: 600 }}>
+            {shortAddress(shardsTechCore?.userInfo?.userId) || "--"}
+          </span>
+        </Paragraph>
+      ),
+    },
+    {
+      key: "shardsId",
+      label: (
+        <Paragraph
+          style={{ margin: 0 }}
+          copyable={{ text: shardsTechCore?.userInfo?._id }}
+        >
+          Shards ID:{" "}
+          <span style={{ fontWeight: 600 }}>
+            {shortAddress(shardsTechCore?.userInfo?._id) || "--"}
+          </span>
         </Paragraph>
       ),
     },
