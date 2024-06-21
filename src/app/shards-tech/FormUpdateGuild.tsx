@@ -66,6 +66,13 @@ const FormUpdateGuild = ({
     if (allowUpdateFields && allowUpdateFields.length) {
       for (let field of allowUpdateFields) {
         canUpdateFields[`${field}`] = true;
+        if (
+          field === "guildOwnerShare" ||
+          field === "rewardShareForMembers" ||
+          field === "txGuildOwnerShare"
+        ) {
+          canUpdateFields.earningDistribution = true;
+        }
       }
     }
     return canUpdateFields;
@@ -262,22 +269,30 @@ const FormUpdateGuild = ({
           </p>
         </div>
         <div style={{ display: "flex", paddingTop: "16px" }}>
-          <div style={{ flex: 1 }}>
-            Start Date:{" "}
-            <p style={{ fontWeight: 600, display: "inline-block", margin: 0 }}>
-              {moment(
-                shardsTechCore?.userGuild?.startAllowUpdateTimestamp * 1000
-              ).format("DD/MM/YYYY LT")}
-            </p>
-          </div>
-          <div style={{ flex: 1 }}>
-            End Date:{" "}
-            <p style={{ fontWeight: 600, display: "inline-block", margin: 0 }}>
-              {moment(
-                shardsTechCore?.userGuild?.endAllowUpdateTimestamp * 1000
-              ).format("DD/MM/YYYY LT")}
-            </p>
-          </div>
+          {shardsTechCore?.userGuild?.startAllowUpdateTimestamp ? (
+            <div style={{ flex: 1 }}>
+              Start Date:{" "}
+              <p
+                style={{ fontWeight: 600, display: "inline-block", margin: 0 }}
+              >
+                {moment(
+                  shardsTechCore.userGuild.startAllowUpdateTimestamp * 1000
+                ).format("DD/MM/YYYY LT")}
+              </p>
+            </div>
+          ) : null}
+          {shardsTechCore?.userGuild?.endAllowUpdateTimestamp ? (
+            <div style={{ flex: 1 }}>
+              End Date:{" "}
+              <p
+                style={{ fontWeight: 600, display: "inline-block", margin: 0 }}
+              >
+                {moment(
+                  shardsTechCore.userGuild.endAllowUpdateTimestamp * 1000
+                ).format("DD/MM/YYYY LT")}
+              </p>
+            </div>
+          ) : null}
         </div>
       </Modal>
     </Form>
