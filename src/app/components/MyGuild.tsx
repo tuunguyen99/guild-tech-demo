@@ -217,6 +217,12 @@ const MyGuild = () => {
             </Button>
           ) : null}
         </div>
+        <div style={{ marginBottom: "12px", fontWeight: 500 }}>
+          Owner by{" "}
+          <span style={{ fontWeight: 700 }}>
+            {shortAddress(shardsTechCore?.userGuild?.owner?.address)}
+          </span>
+        </div>
         <Typography.Paragraph type="secondary">
           {shardsTechCore.userGuild.metadata?.description ? (
             shardsTechCore.userGuild.metadata?.description
@@ -286,7 +292,7 @@ const MyGuild = () => {
         items={[
           {
             key: "1",
-            label: "Members",
+            label: `${shardsTechCore.userGuild?.users?.length} Member`,
             children: shardsTechCore.userGuild?.users && (
               <Table
                 columns={usersColumns}

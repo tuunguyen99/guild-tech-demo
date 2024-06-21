@@ -10,6 +10,7 @@ import MySellSlot from "./components/MySellSlot";
 import MyHistory from "./components/MyHistory";
 import { HomeContext } from "./context";
 import HandleForm from "./shards-tech/_Form";
+import UserInfo from "./components/UserInfo";
 
 export default function Home() {
   const { shardsTechCore } = useContext(HomeContext);
@@ -176,13 +177,15 @@ export default function Home() {
 
   return (
     <main>
-      <Button
-        type="primary"
-        onClick={() => setHandleFormVisible(true)}
-        style={{ marginBottom: 16, marginTop: 16 }}
-      >
-        Add New Guild
-      </Button>
+      <div style={{ marginRight: "16px", marginLeft: "16px" }}>
+        <Button
+          onClick={() => setHandleFormVisible(true)}
+          style={{ marginBottom: 16, marginTop: 16 }}
+        >
+          Add New Guild
+        </Button>
+        <UserInfo shardsTechCore={shardsTechCore} />
+      </div>
       {loading ? (
         <div
           style={{

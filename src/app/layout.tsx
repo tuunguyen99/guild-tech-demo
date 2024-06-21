@@ -70,9 +70,15 @@ export default function RootLayout({
       <html lang="en">
         <body className={inter.className}>
           <StyledComponentsRegistry>
-            <Space.Compact>
+            <Space.Compact
+              style={{
+                marginRight: "16px",
+                marginLeft: "16px",
+                marginTop: "16px",
+              }}
+            >
               <Input
-                placeholder="deviceId"
+                placeholder="Enter device ID"
                 value={deviceId}
                 onChange={(value) => setDeviceId(value?.target.value)}
               />
