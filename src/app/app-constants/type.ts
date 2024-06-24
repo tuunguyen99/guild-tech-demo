@@ -22,6 +22,7 @@ export type GuildType = {
   txGuildOwnerShare: number;
   userCount: number;
   _id: string;
+  requireJoinGuildRequest?: boolean;
 };
 
 export type GuildOwner = {

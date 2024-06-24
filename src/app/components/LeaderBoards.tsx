@@ -137,8 +137,11 @@ const LeaderBoards = () => {
     }
 
     if (
-      shardsTechCore.gameConfig?.memberGuildConfig?.requireJoinGuildRequest ===
-      "off"
+      (shardsTechCore.gameConfig?.memberGuildConfig?.requireJoinGuildRequest ===
+        "off" &&
+        !guild?.hasOwnProperty("requireJoinGuildRequest")) ||
+      (guild?.hasOwnProperty("requireJoinGuildRequest") &&
+        !guild?.requireJoinGuildRequest)
     ) {
       return (
         <span onClick={() => getSlotPrice(guild._id)}>Get Slot Price</span>
