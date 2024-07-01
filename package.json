@@ -17,7 +17,7 @@
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@faker-js/faker": "^8.3.1",
-    "@mirailabs-co/shards-tech": "1.1.10",
+    "@mirailabs-co/shards-tech": "1.1.12",
     "antd": "^5.17.4",
     "autoprefixer": "^10.4.19",
     "axios": "^1.6.8",
