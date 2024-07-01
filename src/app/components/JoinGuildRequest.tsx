@@ -1,4 +1,4 @@
-import { Button, Empty, Space, Table, Tabs } from "antd";
+import { Button, Empty, message, Space, Table, Tabs } from "antd";
 import { useContext, useEffect, useState } from "react";
 import { HomeContext } from "../context";
 
@@ -8,8 +8,9 @@ const JoinGuildRequest = () => {
   const [joinGuildRequestOfGuild, setJoinGuildRequestOfGuild] =
     useState<any[]>();
   const [listInvitation, setListInvitation] = useState<any[]>([]);
+  const [messageApi, contextHolder] = message.useMessage();
 
-  const getListResquest = async () => {
+  const getListRequest = async () => {
     try {
       if (!shardsTechCore?.userGuild) {
         const res = await shardsTechCore?.getJoinGuildOfUser();
@@ -32,9 +33,35 @@ const JoinGuildRequest = () => {
     }
   };
 
+  const rejectInvite = async (guildId: string) => {
+    try {
+      const res = await shardsTechCore.rejectInvite(guildId);
+      if (!res) {
+        throw new Error("Reject invite fail");
+      }
+      messageApi.open({
+        content: "Reject invite success",
+        type: "success",
+        style: {
+          color: "#52c41a",
+        },
+      });
+      await getListRequest();
+    } catch (error) {
+      console.log(error);
+      messageApi.open({
+        content: "Reject invite fail",
+        type: "error",
+        style: {
+          color: "#FF4D4F",
+        },
+      });
+    }
+  };
+
   useEffect(() => {
     if (shardsTechCore) {
-      getListResquest();
+      getListRequest();
     }
   }, [shardsTechCore]);
 
@@ -115,6 +142,16 @@ const JoinGuildRequest = () => {
       dataIndex: "status",
       key: "status",
     },
+    {
+      title: "Actions",
+      dataIndex: "status",
+      key: "action",
+      render: (status: any, record: any) => {
+        return (
+          <Button onClick={() => rejectInvite(record.guild)}>Reject</Button>
+        );
+      },
+    },
   ];
 
   if (
@@ -135,40 +172,43 @@ const JoinGuildRequest = () => {
   }
 
   return (
-    <Tabs
-      defaultActiveKey="1"
-      type="card"
-      items={[
-        {
-          key: "1",
-          label: "Request",
-          children: joinGuildRequestOfGuild?.length ? (
-            <Table
-              columns={joinGuildRequestColumns}
-              dataSource={joinGuildRequestOfGuild || []}
-              rowKey={(record) => record?._id}
-              pagination={false}
-            />
-          ) : (
-            <Empty />
-          ),
-        },
-        {
-          key: "2",
-          label: "Invited",
-          children: listInvitation?.length ? (
-            <Table
-              columns={listInvitationColumns}
-              dataSource={listInvitation || []}
-              rowKey={(record) => record?._id}
-              pagination={false}
-            />
-          ) : (
-            <Empty />
-          ),
-        },
-      ]}
-    />
+    <>
+      {contextHolder}
+      <Tabs
+        defaultActiveKey="1"
+        type="card"
+        items={[
+          {
+            key: "1",
+            label: "Request",
+            children: joinGuildRequestOfGuild?.length ? (
+              <Table
+                columns={joinGuildRequestColumns}
+                dataSource={joinGuildRequestOfGuild || []}
+                rowKey={(record) => record?._id}
+                pagination={false}
+              />
+            ) : (
+              <Empty />
+            ),
+          },
+          {
+            key: "2",
+            label: "Invited",
+            children: listInvitation?.length ? (
+              <Table
+                columns={listInvitationColumns}
+                dataSource={listInvitation || []}
+                rowKey={(record) => record?._id}
+                pagination={false}
+              />
+            ) : (
+              <Empty />
+            ),
+          },
+        ]}
+      />
+    </>
   );
 };
 
