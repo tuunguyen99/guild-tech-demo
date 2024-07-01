@@ -37,7 +37,7 @@ const MySellSlot = () => {
     setMySellSlot(mySellSlot);
   };
 
-  if (!mySellSlot || !mySellSlot?.length) {
+  if (!mySellSlot) {
     return <Empty />;
   }
 
