@@ -120,8 +120,8 @@ export default function Home() {
       children: <MyGuild />,
     },
     {
-      key: "join-guild-request",
-      label: "Join Guild Request",
+      key: "join-guild",
+      label: "Join Guild",
       children: <JoinGuildRequest />,
     },
     {
