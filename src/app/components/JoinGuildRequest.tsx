@@ -1,6 +1,9 @@
-import { Button, Empty, message, Space, Table, Tabs } from "antd";
+import { Button, Empty, message, Space, Spin, Table, Tabs } from "antd";
 import { useContext, useEffect, useState } from "react";
 import { HomeContext } from "../context";
+import ModalGetSlotPrice from "../shards-tech/ModalGetSlotPrice";
+import { LoadingOutlined } from "@ant-design/icons";
+import { GuildSlotType } from "../app-constants/type";
 
 const JoinGuildRequest = () => {
   const { shardsTechCore } = useContext(HomeContext);
@@ -8,6 +11,11 @@ const JoinGuildRequest = () => {
   const [joinGuildRequestOfGuild, setJoinGuildRequestOfGuild] =
     useState<any[]>();
   const [listInvitation, setListInvitation] = useState<any[]>([]);
+  const [openBuySlotPrice, setOpenBuySlotPrice] = useState<boolean>(false);
+  const [buySlotPrice, setBuySlotPrice] = useState<GuildSlotType>();
+  const [loading, setLoading] = useState<boolean>(false);
+  const [loadingReject, setLoadingReject] = useState<boolean>(false);
+
   const [messageApi, contextHolder] = message.useMessage();
 
   const getListRequest = async () => {
@@ -35,6 +43,7 @@ const JoinGuildRequest = () => {
 
   const rejectInvite = async (guildId: string) => {
     try {
+      setLoadingReject(true);
       const res = await shardsTechCore.rejectInvite(guildId);
       if (!res) {
         throw new Error("Reject invite fail");
@@ -56,6 +65,21 @@ const JoinGuildRequest = () => {
           color: "#FF4D4F",
         },
       });
+    } finally {
+      setLoadingReject(false);
+    }
+  };
+
+  const getSlotPrice = async (guildId: string) => {
+    try {
+      setLoading(true);
+      const response = await shardsTechCore.getBuySlotPrice(guildId);
+      setBuySlotPrice(response);
+      setOpenBuySlotPrice(true);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -70,9 +94,22 @@ const JoinGuildRequest = () => {
       title: "User",
       dataIndex: "userId",
       key: "userId",
-      //   render: (user: any) => {
-      //     return user && user.userId;
-      //   },
+    },
+    {
+      title: "Guild Name",
+      dataIndex: "guildRecord",
+      key: "guildName",
+      render: (guildRecord: any, record: any) => {
+        return guildRecord?.name;
+      },
+    },
+    {
+      title: "Guild Owner",
+      dataIndex: "guildRecord",
+      key: "guildOwner",
+      render: (guildRecord: any, record: any) => {
+        return guildRecord?.owner;
+      },
     },
     {
       title: "Status",
@@ -133,22 +170,60 @@ const JoinGuildRequest = () => {
       title: "User",
       dataIndex: "userId",
       key: "userId",
-      //   render: (user: any) => {
-      //     return user && user.userId;
-      //   },
     },
     {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
+      title: "Guild Name",
+      dataIndex: "guildRecord",
+      key: "guildName",
+      render: (guildRecord: any, record: any) => {
+        return guildRecord?.name;
+      },
+    },
+    {
+      title: "Guild Owner",
+      dataIndex: "guildRecord",
+      key: "guildOwner",
+      render: (guildRecord: any, record: any) => {
+        return guildRecord?.owner;
+      },
     },
     {
       title: "Actions",
       dataIndex: "status",
       key: "action",
-      render: (status: any, record: any) => {
+      render: (_: any, record: any) => {
         return (
-          <Button onClick={() => rejectInvite(record.guild)}>Reject</Button>
+          <div style={{ display: "flex", gap: 16 }}>
+            {loading ? (
+              <Button style={{ minWidth: "80px" }} onClick={() => {}}>
+                <Spin indicator={<LoadingOutlined spin />} />
+              </Button>
+            ) : (
+              <Button
+                style={{ minWidth: "80px" }}
+                onClick={() => getSlotPrice(record.guild)}
+                type="primary"
+                ghost
+              >
+                Accept
+              </Button>
+            )}
+            {loadingReject ? (
+              <Button style={{ minWidth: "80px" }} onClick={() => {}}>
+                <Spin indicator={<LoadingOutlined spin />} />
+              </Button>
+            ) : (
+              <Button
+                style={{ minWidth: "80px" }}
+                onClick={() => rejectInvite(record.guild)}
+                type="primary"
+                ghost
+                danger
+              >
+                Reject
+              </Button>
+            )}
+          </div>
         );
       },
     },
@@ -207,6 +282,12 @@ const JoinGuildRequest = () => {
             ),
           },
         ]}
+      />
+      <ModalGetSlotPrice
+        openBuySlotPrice={openBuySlotPrice}
+        setOpenBuySlotPrice={setOpenBuySlotPrice}
+        shardsTechCore={shardsTechCore}
+        buySlotPrice={buySlotPrice}
       />
     </>
   );
