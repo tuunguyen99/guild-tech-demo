@@ -41,7 +41,7 @@ const HandleForm = ({
         throw new Error("Create guild fail");
       }
       messageApi.open({
-        content: "Update guild success",
+        content: "Create guild success",
         type: "success",
         style: {
           color: "#52c41a",
@@ -51,7 +51,7 @@ const HandleForm = ({
     } catch (error) {
       console.log(error);
       messageApi.open({
-        content: "Update guild fail",
+        content: "Create guild fail",
         type: "error",
         style: {
           color: "#FF4D4F",
