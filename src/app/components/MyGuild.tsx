@@ -52,6 +52,9 @@ const MyGuild = () => {
   const [openUpdateForm, setOpenUpdateForm] = useState<boolean>(false);
   const [openModalInvite, setOpenModalInvite] = useState<boolean>(false);
 
+  const [openModalDisbandGuild, setOpenModalDisbandGuild] =
+    useState<boolean>(false);
+
   const earningDistribution = useMemo(() => {
     let result = parseGuildConfig(
       shardsTechCore?.userGuild?.rewardShareForMembers,
@@ -103,6 +106,19 @@ const MyGuild = () => {
       newOwner,
       shardsTechCore.userInfo.userId
     );
+  };
+
+  const handleDisbandGuild = async () => {
+    try {
+      const guildAddress = shardsTechCore?.userGuild?.address;
+      const chainId = shardsTechCore?.userGuild?.chain;
+      const res = shardsTechCore?.disbandGuild(guildAddress, chainId);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      shardsTechCore.getGuildOfUser();
+      setOpenModalDisbandGuild(false);
+    }
   };
 
   useEffect(() => {
@@ -222,13 +238,22 @@ const MyGuild = () => {
           </Space>
           {shardsTechCore?.userGuild?.owner?._id ===
           shardsTechCore?.userInfo?._id ? (
-            <Button
-              type="default"
-              icon={<UserAddOutlined />}
-              onClick={() => setOpenModalInvite(true)}
-            >
-              Invite Member
-            </Button>
+            <div>
+              <Button
+                type="default"
+                icon={<UserAddOutlined />}
+                onClick={() => setOpenModalInvite(true)}
+              >
+                Invite Member
+              </Button>
+              <Button
+                style={{ marginLeft: "8px" }}
+                danger
+                onClick={() => setOpenModalDisbandGuild(true)}
+              >
+                Disband Guild
+              </Button>
+            </div>
           ) : null}
         </div>
         <div style={{ marginBottom: "12px", fontWeight: 500 }}>
@@ -419,6 +444,17 @@ const MyGuild = () => {
         setOpenHandleForm={setOpenModalInvite}
         shardsTechCore={shardsTechCore}
       />
+      <Modal
+        open={openModalDisbandGuild}
+        onCancel={() => setOpenModalDisbandGuild(false)}
+        onOk={handleDisbandGuild}
+        title="Disband Guild"
+      >
+        <p>
+          Are you sure you want to delete the guild{" "}
+          {shardsTechCore.userGuild.name}?
+        </p>
+      </Modal>
     </>
   );
 };
