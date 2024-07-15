@@ -353,10 +353,10 @@ const MyGuild = () => {
                     <Avatar size={40} icon={<UserOutlined />} />
                     <Space direction="vertical" style={{ gap: "0" }}>
                       <Typography.Text className="fw-semibold">
-                        {`${item?.user?.address.slice(
+                        {`${item?.user?.address?.slice(
                           0,
                           6
-                        )}...${item?.user?.address.slice(-4)}`}{" "}
+                        )}...${item?.user?.address?.slice(-4)}`}{" "}
                         {item.type === "buy_slot" ||
                         item.type === "buy_share" ? (
                           <Typography.Text type="success">Buy</Typography.Text>
