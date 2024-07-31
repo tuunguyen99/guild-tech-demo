@@ -1,10 +1,25 @@
 import { Button, Dropdown, MenuProps, Typography } from "antd";
 import { shortAddress } from "../app-utils";
 import { UserOutlined } from "@ant-design/icons";
+const crypto = require("crypto");
 
 const { Paragraph } = Typography;
 
 const UserInfo = ({ shardsTechCore }: { shardsTechCore: any }) => {
+  const encrypt = (userId: string) => {
+    const randomString = userId || "";
+    const encryptKey = "VlbEROErE26MHoKdKEMgM2kgeWobvNjr";
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv(
+      "aes-256-cbc",
+      Buffer.from(encryptKey),
+      iv
+    );
+    let encrypted = cipher.update(randomString);
+    encrypted = Buffer.concat([encrypted, cipher.final()]);
+    return `${iv.toString("hex")}:${encrypted.toString("hex")}`;
+  };
+
   const items: MenuProps["items"] = [
     {
       key: "address",
@@ -45,6 +60,20 @@ const UserInfo = ({ shardsTechCore }: { shardsTechCore: any }) => {
           Shards ID:{" "}
           <span style={{ fontWeight: 600 }}>
             {shortAddress(shardsTechCore?.userInfo?._id) || "--"}
+          </span>
+        </Paragraph>
+      ),
+    },
+    {
+      key: "encrypt",
+      label: (
+        <Paragraph
+          style={{ margin: 0 }}
+          copyable={{ text: encrypt(shardsTechCore?.userInfo?._id) }}
+        >
+          Encrypt:{" "}
+          <span style={{ fontWeight: 600 }}>
+            {shortAddress(encrypt(shardsTechCore?.userInfo?._id)) || "--"}
           </span>
         </Paragraph>
       ),
