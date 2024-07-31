@@ -26,7 +26,7 @@ export default function RootLayout({
   const [deviceId, setDeviceId] = useState<any>("");
 
   const submitDeviceId = async () => {
-    const endpoint = "http://103.109.37.199:3000/auth/loginGuest";
+    const endpoint = "https://game-server-v1lm.onrender.com/auth/loginGuest";
     const data = {
       deviceId: deviceId,
     };
