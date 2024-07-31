@@ -69,11 +69,11 @@ const UserInfo = ({ shardsTechCore }: { shardsTechCore: any }) => {
       label: (
         <Paragraph
           style={{ margin: 0 }}
-          copyable={{ text: encrypt(shardsTechCore?.userInfo?._id) }}
+          copyable={{ text: encrypt(shardsTechCore?.userInfo?.userId) }}
         >
           Encrypt:{" "}
           <span style={{ fontWeight: 600 }}>
-            {shortAddress(encrypt(shardsTechCore?.userInfo?._id)) || "--"}
+            {shortAddress(encrypt(shardsTechCore?.userInfo?.userId)) || "--"}
           </span>
         </Paragraph>
       ),
